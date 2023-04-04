@@ -35,6 +35,9 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-02-01' = {
             }
           }
         ]
+        routeTable: empty(snetInfo.routeTable) ? json('null') : {
+          id: resourceId('Microsoft.Network/routeTables', snetInfo.routeTable.name)
+        }
         privateEndpointNetworkPolicies: 'Disabled'
         privateLinkServiceNetworkPolicies: 'Disabled'
       }

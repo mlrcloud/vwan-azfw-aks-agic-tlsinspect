@@ -2,9 +2,9 @@ param (
   [string]
   $location = "westeurope",
   [string] 
-  $templateFile = ".\base\main.bicep",
+  $templateFile = ".\agwAksDiffVnets\main.bicep",
   [string]
-  $parameterFile = "parameters.json",
+  $parameterFile = ".\agwAksDiffVnets\parameters.json",
   [string] 
   $deploymentPrefix='vwan-azfw-agic-tlsinspect'
   )

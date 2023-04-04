@@ -4,7 +4,6 @@ param env string
 param tags object
 param deployLogWorkspace bool
 param existingLogWorkspaceName string
-param diagnosticsStorageAccountName string
 
 var logWorkspaceName = 'law-${toLower(env)}'
 
@@ -21,6 +20,7 @@ resource existingLogWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-
   name: existingLogWorkspaceName
 }
 
+
 /* Section: Log Analytics Solutions */
 module serviceMapSolution '../../modules/Microsoft.OperationsManagement/solutions.bicep' = {
   name: 'serviceMapSolutionResources_Deploy'
@@ -30,6 +30,19 @@ module serviceMapSolution '../../modules/Microsoft.OperationsManagement/solution
     name: 'ServiceMap(${deployLogWorkspace ? logWorkspaceName : existingLogWorkspace.name})'
     workspaceResourceId: deployLogWorkspace ? logWorkspaceResources.outputs.workspaceId : existingLogWorkspace.id
     product: 'OMSGallery/ServiceMap'
+    promotionCode: ''
+    publisher: 'Microsoft'
+  }
+}
+
+module vmInsightsSolution '../../modules/Microsoft.OperationsManagement/solutions.bicep' = {
+  name: 'vmInsightsSolutionResources_Deploy'
+  params: {
+    location: location
+    tags: tags
+    name: 'VMInsights(${deployLogWorkspace ? logWorkspaceName : existingLogWorkspace.name})'
+    workspaceResourceId: deployLogWorkspace ? logWorkspaceResources.outputs.workspaceId : existingLogWorkspace.id
+    product: 'OMSGallery/VMInsights'
     promotionCode: ''
     publisher: 'Microsoft'
   }
