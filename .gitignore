@@ -1,0 +1,5 @@
+# Ignore the following files
+base/extensions/
+doc/images/
+README.md
+parameters.json
