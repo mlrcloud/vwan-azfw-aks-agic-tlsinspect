@@ -21,6 +21,7 @@ var sharedResourceGroupName = resourceGroupNames.shared
 var agwResourceGroupName = resourceGroupNames.agw
 var aksResourceGroupName = resourceGroupNames.aks
 var securityResourceGroupName = resourceGroupNames.security
+var spokeResourceGroupName = resourceGroupNames.spoke
 
 
 // Monitoring resources
@@ -94,6 +95,27 @@ param aksVnetInfo object
 var aksSnetsInfo = aksVnetInfo.subnets
 var centrilazedResolverDnsOnAksVnet = aksVnetInfo.centrilazedResolverDns
 
+// Spoke resources
+
+@description('Name and range for spoke services vNet')
+param spokeVnetInfo object 
+
+var spokeSnetsInfo = spokeVnetInfo.subnets
+var centrilazedResolverDnsOnSpokeVnet = spokeVnetInfo.centrilazedResolverDns
+
+@description('Spoke VM configuration details')
+param vmSpoke object 
+
+var vmSpokeName = vmSpoke.name
+var vmSpokeSize = vmSpoke.sku
+var spokeNicName  = vmSpoke.nicName
+var vmSpokeAdminUsername = vmSpoke.adminUsername
+
+
+@description('Admin password for Spoke vm')
+@secure()
+param vmSpokeAdminPassword string
+
 
 // Hub resources
 
@@ -106,7 +128,7 @@ param hubVnetInfo object
 param firewallConfiguration object
 
 var firewallName = firewallConfiguration.name
-
+var fwPrivateIp = firewallConfiguration.privateIp
 var fwPolicyInfo = firewallConfiguration.policy
 var appRuleCollectionGroupName = firewallConfiguration.appCollectionRules.name
 var appRulesInfo = firewallConfiguration.appCollectionRules.rulesInfo
@@ -115,6 +137,8 @@ var networkRuleCollectionGroupName = firewallConfiguration.networkCollectionRule
 var networkRulesInfo = firewallConfiguration.networkCollectionRules.rulesInfo
 
 var dnatRuleCollectionGroupName  = firewallConfiguration.dnatCollectionRules.name
+
+var enableDnsProxy = firewallConfiguration.enableDnsProxy
 
 // TODO If moved to parameters.json, self-reference to other parameters is not supported
 @description('Name for hub virtual connections')
@@ -137,6 +161,12 @@ param hubVnetConnectionsInfo array = [
     resourceGroup: resourceGroupNames.aks
     enableInternetSecurity: true
   }
+  {
+    name: 'spokeconn'
+    remoteVnetName: spokeVnetInfo.name
+    resourceGroup: resourceGroupNames.spoke
+    enableInternetSecurity: true
+  }
 ]
 
 var privateTrafficPrefix = [
@@ -145,6 +175,7 @@ var privateTrafficPrefix = [
   '${sharedVnetInfo.range}'
   '${agwVnetInfo.range}'
   '${aksVnetInfo.range}'
+  '${spokeVnetInfo.range}'
 ]
 
 
@@ -195,7 +226,7 @@ module sharedResources '../base/shared/sharedResources.bicep' = {
     centrilazedResolverDns: centrilazedResolverDnsOnSharedVnet
     dnsResolverName: dnsResolverName
     dnsResolverInboundEndpointName: dnsResolverInboundEndpointName
-    dnsResolverInboundEndpointIp: dnsResolverInboundIp
+    dnsResolverInboundEndpointIp: (enableDnsProxy) ? fwPrivateIp : dnsResolverInboundIp
     dnsResolverOutboundEndpointName: dnsResolverOutboundEndpointName
     dnsForwardingRulesetsName: dnsForwardingRulesetsName
     dnsForwardingRules: dnsForwardingRulesInfo
@@ -224,7 +255,7 @@ module agwResources 'agwResources.bicep' = {
     vnetInfo: agwVnetInfo 
     snetsInfo: agwSnetsInfo 
     centrilazedResolverDns: centrilazedResolverDnsOnAgwVnet
-    dnsResolverInboundEndpointIp: dnsResolverInboundIp
+    dnsResolverInboundEndpointIp: (enableDnsProxy) ? fwPrivateIp : dnsResolverInboundIp
     dnsForwardingRulesetsName: dnsForwardingRulesetsName
     sharedResourceGroupName: sharedResourceGroupName
   }
@@ -251,9 +282,42 @@ module aksResources 'aksResources.bicep' = {
     vnetInfo: aksVnetInfo 
     snetsInfo: aksSnetsInfo 
     centrilazedResolverDns: centrilazedResolverDnsOnAksVnet
-    dnsResolverInboundEndpointIp: dnsResolverInboundIp
+    dnsResolverInboundEndpointIp: (enableDnsProxy) ? fwPrivateIp : dnsResolverInboundIp
     dnsForwardingRulesetsName: dnsForwardingRulesetsName
     sharedResourceGroupName: sharedResourceGroupName
+  }
+}
+
+/*
+  Spoke resources
+*/
+//Checked
+
+resource spokeResourceGroup 'Microsoft.Resources/resourceGroups@2021-01-01' = {
+  name: spokeResourceGroupName
+  location: location
+}
+
+module spokeResources '../base/spokes/spokeResources.bicep' = {
+  scope: spokeResourceGroup
+  name: 'spokeResources_Deploy'
+  dependsOn: [
+    sharedResources
+  ]
+  params: {
+    location:location
+    tags: tags
+    vnetInfo: spokeVnetInfo 
+    snetsInfo: spokeSnetsInfo 
+    nicName: spokeNicName
+    centrilazedResolverDns: centrilazedResolverDnsOnSpokeVnet
+    dnsResolverInboundEndpointIp: (enableDnsProxy) ? fwPrivateIp : dnsResolverInboundIp
+    dnsForwardingRulesetsName: dnsForwardingRulesetsName
+    sharedResourceGroupName: sharedResourceGroupName
+    vmName: vmSpokeName
+    vmSize: vmSpokeSize
+    vmAdminUsername: vmSpokeAdminUsername
+    vmAdminPassword: vmSpokeAdminPassword
   }
 }
 
@@ -279,6 +343,7 @@ module vhubResources '../base/vhub/vhubResources.bicep' = {
     sharedResources
     agwResources
     aksResources
+    spokeResources
   ]
   params: {
     location:location
@@ -298,6 +363,8 @@ module vhubResources '../base/vhub/vhubResources.bicep' = {
     firewallName:firewallName
     destinationAddresses: privateTrafficPrefix
     hubVnetConnectionsInfo: hubVnetConnectionsInfo
+    enableDnsProxy: enableDnsProxy
+    dnsResolverInboundEndpointIp: dnsResolverInboundIp
   }
 }
 

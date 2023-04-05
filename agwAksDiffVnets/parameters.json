@@ -20,7 +20,8 @@
                 "shared": "rg-shared",
                 "agw": "rg-agw",
                 "aks": "rg-aks",
-                "security": "rg-security"
+                "security": "rg-security",
+                "spoke": "rg-spoke"
             }
         },
         "monitoringOptions": {
@@ -47,12 +48,14 @@
                     {
                         "name": "snet-dns-inbound",
                         "range": "10.0.17.0/28",
-                        "delegations": "Microsoft.Network/dnsResolvers"
+                        "delegations": "Microsoft.Network/dnsResolvers",
+                        "routeTable": {}
                     },
                     {
                         "name": "snet-dns-outbound",
                         "range": "10.0.17.16/28",
-                        "delegations": "Microsoft.Network/dnsResolvers"
+                        "delegations": "Microsoft.Network/dnsResolvers",
+                        "routeTable": {}
                     }
                 ]
             }
@@ -108,8 +111,29 @@
                         }
                     },
                     {
+                        "name": "snet-vm",
+                        "range": "10.0.1.64/26",
+                        "delegations": "",
+                        "routeTable": {}
+                    }
+                ]
+            }
+        },
+        "spokeVnetInfo": {
+            "value": {
+                "name": "vnet-spoke",
+                "range": "10.0.4.0/24",
+                "centrilazedResolverDns": true,
+                "subnets": [
+                    {
+                        "name": "snet-app",
+                        "range": "10.0.4.0/26",
+                        "delegations": "",
+                        "routeTable": {}
+                    },
+                    {
                         "name": "snet-plinks",
-                        "range": "10.0.2.64/26",
+                        "range": "10.0.4.64/26",
                         "delegations": "",
                         "routeTable": {}
                     }
@@ -125,9 +149,19 @@
                 "range": "10.0.0.0/24"
             }
         },
+        "vmSpoke": {
+            "value": {
+                "name": "vm-spoke",
+                "sku": "Standard_DS2_V2",
+                "nicName": "nic-vm-spoke",
+                "adminUsername": "azureAdmin"
+            }
+        },
         "firewallConfiguration": {
             "value": {
                 "name": "azfw",
+                "enableDnsProxy": true,
+                "privateIp": "10.0.0.132",
                 "policy": {
                     "name": "fwpolicy-001",
                     "snatRanges": [
@@ -148,7 +182,7 @@
                                 "action": {
                                     "type": "Allow"
                                 },
-                                "name": "AzureMonitorRuleCollection",
+                                "name": "AksFwWeRuleCollection",
                                 "priority": 100,
                                 "rules": [
                                     {

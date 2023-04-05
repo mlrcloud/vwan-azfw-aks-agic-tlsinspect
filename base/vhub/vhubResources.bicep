@@ -19,6 +19,8 @@ param dnatRuleCollectionGroupName string
 param firewallName string
 param destinationAddresses array
 param hubVnetConnectionsInfo array
+param enableDnsProxy bool
+param dnsResolverInboundEndpointIp string
 
 
 var dnatRulesInfo = {
@@ -35,7 +37,7 @@ var dnatRulesInfo = {
         {
           ruleType: 'NatRule'
           name: 'dns-rdp-access'
-          translatedAddress: '10.0.1.4'
+          translatedAddress: '10.0.4.4'
           translatedPort: 3389
           ipProtocols: [
               'TCP'
@@ -88,6 +90,8 @@ module fwPolicyResources '../../modules/Microsoft.Network/fwPolicy.bicep' = {
     monitoringResourceGroupName: monitoringResourceGroupName
     logWorkspaceName: logWorkspaceName
     fwPolicyInfo: fwPolicyInfo
+    enableProxy: enableDnsProxy
+    dnsResolverInboundEndpointIp: dnsResolverInboundEndpointIp
   }
 }
 
