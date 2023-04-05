@@ -7,7 +7,6 @@ param accessPolicies object
 param enabledForDeployment bool
 param enabledForDiskEncryption bool
 param enabledForTemplateDeployment bool
-param enablePurgeProtection bool
 param enableRbacAuthorization bool
 param enableSoftDelete bool
 param networkAcls object
@@ -28,7 +27,6 @@ resource vaults 'Microsoft.KeyVault/vaults@2022-07-01' = {
     enabledForDeployment: enabledForDeployment
     enabledForDiskEncryption: enabledForDiskEncryption
     enabledForTemplateDeployment: enabledForTemplateDeployment
-    enablePurgeProtection: enablePurgeProtection
     enableRbacAuthorization: enableRbacAuthorization
     enableSoftDelete: enableSoftDelete
     networkAcls: networkAcls

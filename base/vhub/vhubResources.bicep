@@ -11,7 +11,7 @@ param monitoringResourceGroupName string
 param logWorkspaceName string
 param hubResourceGroupName string
 param fwIdentityName string
-param spokeResourceGroupName string
+param mngmntResourceGroupName string
 param fwInterCACertificateName string
 param fwRootCACertificateName string
 param fwIdentityKeyVaultAccessPolicyName string
@@ -103,7 +103,7 @@ module fwIdentityResources '../../modules/Microsoft.Authorization/userAssignedId
 
 module fwInterCACertificateResources '../../modules/Microsoft.KeyVault/certificate.bicep' = {
   name: 'fwInterCACertificateResources_Deploy'
-  scope: resourceGroup(spokeResourceGroupName)
+  scope: resourceGroup(mngmntResourceGroupName)
   params: {
     tags: tags
     name: fwInterCACertificateName
@@ -114,7 +114,7 @@ module fwInterCACertificateResources '../../modules/Microsoft.KeyVault/certifica
 
 module fwRootCACerificateResources '../../modules/Microsoft.KeyVault/certificate.bicep' = {
   name: 'fwRootCACertificateResources_Deploy'
-  scope: resourceGroup(spokeResourceGroupName)
+  scope: resourceGroup(mngmntResourceGroupName)
   params: {
     tags: tags
     name: fwRootCACertificateName
@@ -125,13 +125,17 @@ module fwRootCACerificateResources '../../modules/Microsoft.KeyVault/certificate
 
 module fwIdentityKeyVaultAccessPolicy '../../modules/Microsoft.KeyVault/accessPolicies.bicep' = {
   name: 'fwIdentityKeyVaultAccessPolicyResources_Deploy'
-  scope: resourceGroup(spokeResourceGroupName)
+  scope: resourceGroup(mngmntResourceGroupName)
   params: {
     name: fwIdentityKeyVaultAccessPolicyName
     keyVaultName: keyVaultName
     objectId: fwIdentityResources.outputs.principalId
     permissions: {
-      certificates: [
+      certificates: [//Not required
+        'Get'
+        'List'
+      ]
+      secrets: [
         'Get'
         'List'
       ]
@@ -151,6 +155,7 @@ module fwPolicyResources '../../modules/Microsoft.Network/fwPolicy.bicep' = {
     monitoringResourceGroupName: monitoringResourceGroupName
     logWorkspaceName: logWorkspaceName
     fwIdentityName: fwIdentityName
+    mngmntResourceGroupName: mngmntResourceGroupName
     keyVaulName: keyVaultName
     fwInterCACertificateName: fwInterCACertificateName
     fwPolicyInfo: fwPolicyInfo

@@ -22,7 +22,6 @@ param keyVaultAccessPolicies object
 param keyVaultEnabledForDeployment bool
 param keyVaultEnabledForDiskEncryption bool
 param keyVaultEnabledForTemplateDeployment bool
-param keyVaultEnablePurgeProtection bool
 param keyVaultEnableRbacAuthorization bool
 param keyVaultEnableSoftDelete bool
 param keyVaultNetworkAcls object
@@ -46,13 +45,13 @@ module vnetResources '../../modules/Microsoft.Network/vnet.bicep' = {
 }
 
 module rulesetsVnetLinks '../../modules/Microsoft.Network/dnsForwardingRulesetsVnetLink.bicep' = if (!centrilazedResolverDns) {
-  name: 'spokeRulesetsVnetLinksResources_Deploy'
+  name: 'mngmntRulesetsVnetLinksResources_Deploy'
   scope: resourceGroup(sharedResourceGroupName)
   dependsOn: [
     vnetResources
   ]
   params: {
-    name: '${dnsForwardingRulesetsName}-spoke'
+    name: '${dnsForwardingRulesetsName}-mngmnt'
     dnsForwardingRulesetsName: dnsForwardingRulesetsName
     vnetName: vnetInfo.name
     vnetResourceGroupName: resourceGroup().name
@@ -101,7 +100,6 @@ module keyVaultResources '../../modules/Microsoft.keyVault/vaults.bicep' = {
     enabledForDeployment: keyVaultEnabledForDeployment
     enabledForDiskEncryption: keyVaultEnabledForDiskEncryption
     enabledForTemplateDeployment: keyVaultEnabledForTemplateDeployment
-    enablePurgeProtection: keyVaultEnablePurgeProtection
     enableRbacAuthorization: keyVaultEnableRbacAuthorization
     enableSoftDelete: keyVaultEnableSoftDelete
     networkAcls: keyVaultNetworkAcls

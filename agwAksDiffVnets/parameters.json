@@ -21,7 +21,7 @@
                 "agw": "rg-agw",
                 "aks": "rg-aks",
                 "security": "rg-security",
-                "spoke": "rg-spoke"
+                "mngmnt": "rg-mngmnt"
             }
         },
         "monitoringOptions": {
@@ -119,14 +119,14 @@
                 ]
             }
         },
-        "spokeVnetInfo": {
+        "mngmntVnetInfo": {
             "value": {
-                "name": "vnet-spoke",
+                "name": "vnet-mngmt",
                 "range": "10.0.4.0/24",
                 "centrilazedResolverDns": true,
                 "subnets": [
                     {
-                        "name": "snet-app",
+                        "name": "snet-vmMngmt",
                         "range": "10.0.4.0/26",
                         "delegations": "",
                         "routeTable": {}
@@ -149,25 +149,24 @@
                 "range": "10.0.0.0/24"
             }
         },
-        "vmSpoke": {
+        "vmMngmnt": {
             "value": {
-                "name": "vm-spoke",
+                "name": "vm-mngmnt",
                 "sku": "Standard_DS2_V2",
-                "nicName": "nic-vm-spoke",
+                "nicName": "nic-vm-mngmnt",
                 "adminUsername": "azureAdmin"
             }
         },
         "keyVaultConfiguration": {
             "value": {
-                "name": "kv-agw-aks-tls",
+                "name": "kv-agw-fw-aks-tls",
                 "privateEndpointName": "kv-pe",
                 "sku": "standard",
                 "enabledForDeployment": false,
                 "enabledForDiskEncryption": false,
                 "enabledForTemplateDeployment": true,
-                "enablePurgeProtection": false,
                 "enableRbacAuthorization": false,
-                "enableSoftDelete": false,
+                "enableSoftDelete": true,
                 "networkAcls": {
                     "bypass": "AzureServices",
                     "defaultAction": "Allow",
@@ -208,11 +207,11 @@
                 "enableDnsProxy": true,
                 "privateIp": "10.0.0.132",
                 "identityName": "azfw-identity",
-                "keyVaultAccessPolicyName": "azfw-kv-access-policy",
+                "keyVaultAccessPolicyName": "add",
                 "interCACertificateName": "interCA",
                 "rootCACertificateName": "rootCA",
                 "policy": {
-                    "name": "fwpolicy-001",
+                    "name": "fwpolicy",
                     "snatRanges": [
                         "10.0.0.0/8",
                         "172.16.0.0/12",

@@ -21,7 +21,7 @@ var sharedResourceGroupName = resourceGroupNames.shared
 var agwResourceGroupName = resourceGroupNames.agw
 var aksResourceGroupName = resourceGroupNames.aks
 var securityResourceGroupName = resourceGroupNames.security
-var spokeResourceGroupName = resourceGroupNames.spoke
+var mngmntResourceGroupName = resourceGroupNames.mngmnt
 
 
 // Monitoring resources
@@ -106,26 +106,26 @@ param aksVnetInfo object
 var aksSnetsInfo = aksVnetInfo.subnets
 var centrilazedResolverDnsOnAksVnet = aksVnetInfo.centrilazedResolverDns
 
-// Spoke resources
+// Mngmnt resources
 
-@description('Name and range for spoke services vNet')
-param spokeVnetInfo object 
+@description('Name and range for mngmnt services vNet')
+param mngmntVnetInfo object 
 
-var spokeSnetsInfo = spokeVnetInfo.subnets
-var centrilazedResolverDnsOnSpokeVnet = spokeVnetInfo.centrilazedResolverDns
+var mngmntSnetsInfo = mngmntVnetInfo.subnets
+var centrilazedResolverDnsOnMngmntVnet = mngmntVnetInfo.centrilazedResolverDns
 
-@description('Spoke VM configuration details')
-param vmSpoke object 
+@description('Mngmnt VM configuration details')
+param vmMngmnt object 
 
-var vmSpokeName = vmSpoke.name
-var vmSpokeSize = vmSpoke.sku
-var spokeNicName  = vmSpoke.nicName
-var vmSpokeAdminUsername = vmSpoke.adminUsername
+var vmMngmntName = vmMngmnt.name
+var vmMngmntSize = vmMngmnt.sku
+var mngmntNicName  = vmMngmnt.nicName
+var vmMngmntAdminUsername = vmMngmnt.adminUsername
 
 
-@description('Admin password for Spoke vm')
+@description('Admin password for Mngmnt vm')
 @secure()
-param vmSpokeAdminPassword string
+param vmMngmntAdminPassword string
 
 
 // Hub resources
@@ -185,9 +185,9 @@ param hubVnetConnectionsInfo array = [
     enableInternetSecurity: true
   }
   {
-    name: 'spokeconn'
-    remoteVnetName: spokeVnetInfo.name
-    resourceGroup: resourceGroupNames.spoke
+    name: 'mngmntconn'
+    remoteVnetName: mngmntVnetInfo.name
+    resourceGroup: resourceGroupNames.mngmnt
     enableInternetSecurity: true
   }
 ]
@@ -198,7 +198,7 @@ var privateTrafficPrefix = [
   '${sharedVnetInfo.range}'
   '${agwVnetInfo.range}'
   '${aksVnetInfo.range}'
-  '${spokeVnetInfo.range}'
+  '${mngmntVnetInfo.range}'
 ]
 
 
@@ -266,9 +266,9 @@ resource agwResourceGroup 'Microsoft.Resources/resourceGroups@2021-01-01' = {
   location: location
 }
 
-module agwSpokeResources 'agwSpokeResources.bicep' = {
+module agwMngmntResources 'agwMngmntResources.bicep' = {
   scope: agwResourceGroup
-  name: 'agwSpokeResources_Deploy'
+  name: 'agwMngmntResources_Deploy'
   dependsOn: [
     sharedResources
   ]
@@ -318,7 +318,7 @@ module aksResources 'aksResources.bicep' = {
 }
 
 /*
-  Spoke resources
+  Mngmnt resources
 */
 //Checked
 
@@ -329,7 +329,6 @@ var keyVaultAccessPolicies = keyVaultConfiguration.accessPolicies
 var keyVaultEnabledForDeployment = keyVaultConfiguration.enabledForDeployment
 var keyVaultEnabledForDiskEncryption = keyVaultConfiguration.enabledForDiskEncryption 
 var keyVaultEnabledForTemplateDeployment = keyVaultConfiguration.enabledForTemplateDeployment 
-var keyVaultEnablePurgeProtection = keyVaultConfiguration.enablePurgeProtection
 var keyVaultEnableRbacAuthorization = keyVaultConfiguration.enableRbacAuthorization 
 var keyVaultEnableSoftDelete = keyVaultConfiguration.enableSoftDelete
 var keyVaultNetworkAcls = keyVaultConfiguration.networkAcls 
@@ -338,37 +337,36 @@ var keyVaultSku = keyVaultConfiguration.sku
 var keyVaultSoftDeleteRetentionInDays = keyVaultConfiguration.softDeleteRetentionInDays 
 var keyVaultPrivateEndpointName = keyVaultConfiguration.privateEndpointName 
 
-resource spokeResourceGroup 'Microsoft.Resources/resourceGroups@2021-01-01' = {
-  name: spokeResourceGroupName
+resource mngmntResourceGroup 'Microsoft.Resources/resourceGroups@2021-01-01' = {
+  name: mngmntResourceGroupName
   location: location
 }
 
-module spokeResources '../base/spokes/spokeResources.bicep' = {
-  scope: spokeResourceGroup
-  name: 'spokeResources_Deploy'
+module mngmntResources '../base/mngmnt/mngmntResources.bicep' = {
+  scope: mngmntResourceGroup
+  name: 'mngmntResources_Deploy'
   dependsOn: [
     sharedResources
   ]
   params: {
     location:location
     tags: tags
-    vnetInfo: spokeVnetInfo 
-    snetsInfo: spokeSnetsInfo 
-    nicName: spokeNicName
-    centrilazedResolverDns: centrilazedResolverDnsOnSpokeVnet
+    vnetInfo: mngmntVnetInfo 
+    snetsInfo: mngmntSnetsInfo 
+    nicName: mngmntNicName
+    centrilazedResolverDns: centrilazedResolverDnsOnMngmntVnet
     dnsResolverInboundEndpointIp: (enableDnsProxy) ? fwPrivateIp : dnsResolverInboundIp
     dnsForwardingRulesetsName: dnsForwardingRulesetsName
     sharedResourceGroupName: sharedResourceGroupName
-    vmName: vmSpokeName
-    vmSize: vmSpokeSize
-    vmAdminUsername: vmSpokeAdminUsername
-    vmAdminPassword: vmSpokeAdminPassword
+    vmName: vmMngmntName
+    vmSize: vmMngmntSize
+    vmAdminUsername: vmMngmntAdminUsername
+    vmAdminPassword: vmMngmntAdminPassword
     keyVaultName: keyVaultName
     keyVaultAccessPolicies: keyVaultAccessPolicies
     keyVaultEnabledForDeployment: keyVaultEnabledForDeployment
     keyVaultEnabledForDiskEncryption: keyVaultEnabledForDiskEncryption
     keyVaultEnabledForTemplateDeployment: keyVaultEnabledForTemplateDeployment
-    keyVaultEnablePurgeProtection: keyVaultEnablePurgeProtection
     keyVaultEnableRbacAuthorization: keyVaultEnableRbacAuthorization
     keyVaultEnableSoftDelete: keyVaultEnableSoftDelete
     keyVaultNetworkAcls: keyVaultNetworkAcls
@@ -400,9 +398,9 @@ module vhubResources '../base/vhub/vhubResources.bicep' = {
   dependsOn: [
     securityResourceGroup
     sharedResources
-    agwSpokeResources
+    agwMngmntResources
     aksResources
-    spokeResources
+    mngmntResources
   ]
   params: {
     location:location
@@ -413,7 +411,7 @@ module vhubResources '../base/vhub/vhubResources.bicep' = {
     monitoringResourceGroupName: monitoringResourceGroupName
     logWorkspaceName: monitoringResources.outputs.logWorkspaceName
     hubResourceGroupName: hubResourceGroupName
-    spokeResourceGroupName: spokeResourceGroupName
+    mngmntResourceGroupName: mngmntResourceGroupName
     fwIdentityName: fwIdentityName
     fwIdentityKeyVaultAccessPolicyName: fwIdentityKeyVaultAccessPolicyName
     keyVaultName: keyVaultName

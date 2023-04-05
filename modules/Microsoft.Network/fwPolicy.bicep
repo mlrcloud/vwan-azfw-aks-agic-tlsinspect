@@ -5,6 +5,7 @@ param logWorkspaceName string
 param monitoringResourceGroupName string
 param fwPolicyInfo object 
 param fwIdentityName string
+param mngmntResourceGroupName string
 param keyVaulName string
 param fwInterCACertificateName string
 param enableProxy bool
@@ -22,6 +23,7 @@ resource fwIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30
 
 resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
   name: keyVaulName
+  scope: resourceGroup(mngmntResourceGroupName)
 }
 
 resource fwInterCACertificate 'Microsoft.KeyVault/vaults/secrets@2022-07-01' existing = {
@@ -46,7 +48,7 @@ resource fwPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' = {
     transportSecurity:{
       certificateAuthority: {
         name: fwInterCACertificateName
-        keyVaultSecretId: fwInterCACertificate.id
+        keyVaultSecretId: fwInterCACertificate.properties.secretUri
       }
     }
     threatIntelMode: 'Alert'
