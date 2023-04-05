@@ -157,11 +157,60 @@
                 "adminUsername": "azureAdmin"
             }
         },
+        "keyVaultConfiguration": {
+            "value": {
+                "name": "kv-agw-aks-tls",
+                "privateEndpointName": "kv-pe",
+                "sku": "standard",
+                "enabledForDeployment": false,
+                "enabledForDiskEncryption": false,
+                "enabledForTemplateDeployment": true,
+                "enablePurgeProtection": false,
+                "enableRbacAuthorization": false,
+                "enableSoftDelete": false,
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "defaultAction": "Allow",
+                    "ipRules": [],
+                    "virtualNetworkRules": []
+                },
+                "publicNetworkAccess": "Disabled",
+                "softDeleteRetentionInDays": 7,
+                "accessPolicies": {
+                    "objectId": "1220e9fe-9f4a-4446-8423-928b6ecf9e04",
+                    "permissions": {
+                        "certificates": [
+                            "Get",
+                            "List",
+                            "Update",
+                            "Create",
+                            "Import",
+                            "Delete",
+                            "Recover",
+                            "Backup",
+                            "Restore",
+                            "ManageContacts",
+                            "ManageIssuers",
+                            "GetIssuers",
+                            "ListIssuers",
+                            "SetIssuers",
+                            "DeleteIssuers"
+                        ],
+                        "keys": [],
+                        "secrets": []
+                    }
+                }
+            }
+        },
         "firewallConfiguration": {
             "value": {
                 "name": "azfw",
                 "enableDnsProxy": true,
                 "privateIp": "10.0.0.132",
+                "identityName": "azfw-identity",
+                "keyVaultAccessPolicyName": "azfw-kv-access-policy",
+                "interCACertificateName": "interCA",
+                "rootCACertificateName": "rootCA",
                 "policy": {
                     "name": "fwpolicy-001",
                     "snatRanges": [

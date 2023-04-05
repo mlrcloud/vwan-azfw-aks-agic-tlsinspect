@@ -10,6 +10,16 @@ param hubInfo object
 param monitoringResourceGroupName string
 param logWorkspaceName string
 param hubResourceGroupName string
+param fwIdentityName string
+param spokeResourceGroupName string
+param fwInterCACertificateName string
+param fwRootCACertificateName string
+param fwIdentityKeyVaultAccessPolicyName string
+param keyVaultName string
+@secure()
+param fwInterCACertificateValue string
+@secure()
+param fwRootCACertificateValue string
 param fwPolicyInfo object 
 param appRuleCollectionGroupName string
 param appRulesInfo object 
@@ -81,6 +91,57 @@ module hubResources '../../modules/Microsoft.Network/hub.bicep' = {
   }
 }
 
+module fwIdentityResources '../../modules/Microsoft.Authorization/userAssignedIdentity.bicep' = {
+  name: 'fwIdentityRss_Deploy'
+  scope: resourceGroup(securityResourceGroupName)
+  params: {
+    name: fwIdentityName
+    location: location
+    tags: tags
+  }
+}
+
+module fwInterCACertificateResources '../../modules/Microsoft.KeyVault/certificate.bicep' = {
+  name: 'fwInterCACertificateResources_Deploy'
+  scope: resourceGroup(spokeResourceGroupName)
+  params: {
+    tags: tags
+    name: fwInterCACertificateName
+    keyVaulName: keyVaultName
+    certificateValue: fwInterCACertificateValue
+  }
+}
+
+module fwRootCACerificateResources '../../modules/Microsoft.KeyVault/certificate.bicep' = {
+  name: 'fwRootCACertificateResources_Deploy'
+  scope: resourceGroup(spokeResourceGroupName)
+  params: {
+    tags: tags
+    name: fwRootCACertificateName
+    keyVaulName: keyVaultName
+    certificateValue: fwRootCACertificateValue
+  }
+}
+
+module fwIdentityKeyVaultAccessPolicy '../../modules/Microsoft.KeyVault/accessPolicies.bicep' = {
+  name: 'fwIdentityKeyVaultAccessPolicyResources_Deploy'
+  scope: resourceGroup(spokeResourceGroupName)
+  params: {
+    name: fwIdentityKeyVaultAccessPolicyName
+    keyVaultName: keyVaultName
+    objectId: fwIdentityResources.outputs.principalId
+    permissions: {
+      certificates: [
+        'Get'
+        'List'
+      ]
+    }
+  }
+  dependsOn: [
+    fwIdentityResources
+  ]
+}
+
 module fwPolicyResources '../../modules/Microsoft.Network/fwPolicy.bicep' = {
   name: 'fwPolicyResources_Deploy'
   scope: resourceGroup(securityResourceGroupName)
@@ -89,10 +150,19 @@ module fwPolicyResources '../../modules/Microsoft.Network/fwPolicy.bicep' = {
     tags: tags
     monitoringResourceGroupName: monitoringResourceGroupName
     logWorkspaceName: logWorkspaceName
+    fwIdentityName: fwIdentityName
+    keyVaulName: keyVaultName
+    fwInterCACertificateName: fwInterCACertificateName
     fwPolicyInfo: fwPolicyInfo
     enableProxy: enableDnsProxy
     dnsResolverInboundEndpointIp: dnsResolverInboundEndpointIp
   }
+  dependsOn: [
+    fwIdentityResources
+    fwInterCACertificateResources
+    fwRootCACerificateResources
+    fwIdentityKeyVaultAccessPolicy
+  ]
 }
 
 module fwAppRulesResources '../../modules/Microsoft.Network/fwRules.bicep' = {

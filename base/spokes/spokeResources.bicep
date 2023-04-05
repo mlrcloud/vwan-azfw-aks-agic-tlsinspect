@@ -17,6 +17,20 @@ param vmSize string
 param vmAdminUsername string
 @secure()
 param vmAdminPassword string
+param keyVaultName string
+param keyVaultAccessPolicies object
+param keyVaultEnabledForDeployment bool
+param keyVaultEnabledForDiskEncryption bool
+param keyVaultEnabledForTemplateDeployment bool
+param keyVaultEnablePurgeProtection bool
+param keyVaultEnableRbacAuthorization bool
+param keyVaultEnableSoftDelete bool
+param keyVaultNetworkAcls object
+param keyVaultPublicNetworkAccess string
+param keyVaultSku string
+param keyVaultSoftDeleteRetentionInDays int
+param keyVaultPrivateEndpointName string
+param keyVaultPrivateDnsZoneName string
 
 
 module vnetResources '../../modules/Microsoft.Network/vnet.bicep' = {
@@ -76,3 +90,45 @@ module vmResources '../../modules/Microsoft.Compute/vm.bicep' = {
     nicName: nicName
   }
 }
+
+module keyVaultResources '../../modules/Microsoft.keyVault/vaults.bicep' = {
+  name: 'keyVaultResources_Deploy'
+  params: {
+    location: location
+    tags: tags
+    name: keyVaultName
+    accessPolicies: keyVaultAccessPolicies
+    enabledForDeployment: keyVaultEnabledForDeployment
+    enabledForDiskEncryption: keyVaultEnabledForDiskEncryption
+    enabledForTemplateDeployment: keyVaultEnabledForTemplateDeployment
+    enablePurgeProtection: keyVaultEnablePurgeProtection
+    enableRbacAuthorization: keyVaultEnableRbacAuthorization
+    enableSoftDelete: keyVaultEnableSoftDelete
+    networkAcls: keyVaultNetworkAcls
+    publicNetworkAccess: keyVaultPublicNetworkAccess
+    sku: keyVaultSku
+    softDeleteRetentionInDays: keyVaultSoftDeleteRetentionInDays
+  }
+  dependsOn: [
+    vnetResources
+  ]
+}
+
+module keyVaultPrivateEndpointResources '../../modules/Microsoft.Network/keyVaultPrivateEndpoint.bicep' = [for i in range(0, length(snetsInfo)): if (snetsInfo[i].name == 'snet-plinks') {
+  name: 'keyVaultPrivateEndpointResources_Deploy${i}'
+  dependsOn: [
+    vnetResources
+    keyVaultResources
+  ]
+  params: {
+    location: location
+    tags: tags
+    name: keyVaultPrivateEndpointName
+    vnetName: vnetInfo.name
+    snetName: snetsInfo[i].name
+    keyVaultName: keyVaultName
+    privateDnsZoneName: keyVaultPrivateDnsZoneName
+    groupIds: 'vault'
+    sharedResourceGroupName: sharedResourceGroupName
+  }
+}]

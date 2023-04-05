@@ -4,6 +4,9 @@ param tags object
 param logWorkspaceName string 
 param monitoringResourceGroupName string
 param fwPolicyInfo object 
+param fwIdentityName string
+param keyVaulName string
+param fwInterCACertificateName string
 param enableProxy bool
 param dnsResolverInboundEndpointIp string
 
@@ -13,13 +16,38 @@ resource logWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' exis
   scope: resourceGroup(monitoringResourceGroupName)
 }
 
+resource fwIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' existing = {
+  name: fwIdentityName
+}
+
+resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
+  name: keyVaulName
+}
+
+resource fwInterCACertificate 'Microsoft.KeyVault/vaults/secrets@2022-07-01' existing = {
+  name: fwInterCACertificateName
+  parent: keyVault
+}
+
 resource fwPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' = {
   name: fwPolicyInfo.name
   location: location
   tags: tags
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${fwIdentity.id}': {}
+    }
+  }
   properties: {
     sku: {
       tier: 'Premium'
+    }
+    transportSecurity:{
+      certificateAuthority: {
+        name: fwInterCACertificateName
+        keyVaultSecretId: fwInterCACertificate.id
+      }
     }
     threatIntelMode: 'Alert'
     intrusionDetection: {
