@@ -20,6 +20,7 @@ resource publicIp 'Microsoft.Network/publicIPAddresses@2020-11-01' = {
   ]
   properties: {
     publicIPAllocationMethod: 'Static'
+    publicIPAddressVersion: 'IPv4'
     ipTags: []
   }
 }

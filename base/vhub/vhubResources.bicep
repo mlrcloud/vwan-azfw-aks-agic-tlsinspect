@@ -131,13 +131,18 @@ module fwIdentityKeyVaultAccessPolicy '../../modules/Microsoft.KeyVault/accessPo
     keyVaultName: keyVaultName
     objectId: fwIdentityResources.outputs.principalId
     permissions: {
-      certificates: [//Not required
-        'Get'
-        'List'
+      certificates: [
+        'list'
+        'get'
       ]
       secrets: [
-        'Get'
-        'List'
+        'backup'
+        'delete'
+        'get'
+        'list'
+        'recover'
+        'restore'
+        'set'
       ]
     }
   }

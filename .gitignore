@@ -2,3 +2,7 @@
 base/extensions/
 doc/images/
 README.md
+modules/Microsoft.ContainerService/nested_ClusterSubnetRoleAssignmentDeployment_20230406125524.bicep
+modules/Microsoft.ContainerService/template.json
+modules/Microsoft.ContainerService/template.bicep
+temp/

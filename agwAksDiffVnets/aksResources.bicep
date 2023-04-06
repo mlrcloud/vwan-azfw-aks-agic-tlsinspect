@@ -4,47 +4,56 @@ param location string = resourceGroup().location
 param tags object
 param vnetInfo object 
 param snetsInfo array
-param centrilazedResolverDns bool
-param dnsResolverInboundEndpointIp string
-param dnsForwardingRulesetsName string
-param sharedResourceGroupName string
+param aksName string
+param aksDnsPrefix string
+param kubernetesVersion string
+param aksNetworkPlugin string
+param aksEnableRBAC bool
+param aksNodeResourceGroupName string
+param aksDisableLocalAccounts bool
+param aksEnablePrivateCluster bool
+param aksEnableAzurePolicy bool
+param aksEnableSecretStoreCSIDriver bool
+param aksServiceCidr string
+param aksDnsServiceIp string
+param aksUpgradeChannel string
+param mngmntResourceGroupName string
+param websiteCertificateName string
+param keyVaultName string
+@secure()
+param websiteCertificateValue string
 
-module routeTableResources '../modules/Microsoft.Network/routeTable.bicep' = [ for rt in snetsInfo: if (!empty(rt.routeTable)) {
-  name: 'routeTableRssFor${rt.name}_Deploy'
+module aksClusterResources '../modules/Microsoft.ContainerService/managedClusters.bicep' = {
+  name: 'aksClusterResources_Deploy'
   params: {
     location: location
     tags: tags
-    name: rt.routeTable.name
-    routes: rt.routeTable.routes
+    name: aksName
+    dnsPrefix: aksDnsPrefix
+    kubernetesVersion: kubernetesVersion
+    networkPlugin: aksNetworkPlugin
+    enableRBAC: aksEnableRBAC 
+    nodeResourceGroup: aksNodeResourceGroupName
+    disableLocalAccounts: aksDisableLocalAccounts 
+    enablePrivateCluster: aksEnablePrivateCluster
+    enableAzurePolicy: aksEnableAzurePolicy
+    enableSecretStoreCSIDriver: aksEnableSecretStoreCSIDriver
+    vnetName: vnetInfo.name
+    snetName: snetsInfo[0].name
+    serviceCidr: aksServiceCidr
+    dnsServiceIp: aksDnsServiceIp
+    upgradeChannel: aksUpgradeChannel
   }
-}]
-
-module vnetResources '../modules/Microsoft.Network/vnet.bicep' = {
-  name: 'vnetResources_Deploy'
-  params: {
-    location: location
-    tags: tags
-    vnetInfo: vnetInfo
-    snetsInfo: snetsInfo
-    centrilazedResolverDns: centrilazedResolverDns
-    dnsResolverInboundEndpointIp: dnsResolverInboundEndpointIp
-  }
-  dependsOn: [
-    routeTableResources
-  ]
 }
 
-module rulesetsVnetLinks '../modules/Microsoft.Network/dnsForwardingRulesetsVnetLink.bicep' = if (!centrilazedResolverDns) {
-  name: 'rulesetsVnetLinksResources_Deploy'
-  scope: resourceGroup(sharedResourceGroupName)
-  dependsOn: [
-    vnetResources
-  ]
+module websiteCertificateResources '../modules/Microsoft.KeyVault/certificate.bicep' = {
+  name: 'websiteCertificateResources_Deploy'
+  scope: resourceGroup(mngmntResourceGroupName)
   params: {
-    name: '${dnsForwardingRulesetsName}-aksSpoke'
-    dnsForwardingRulesetsName: dnsForwardingRulesetsName
-    vnetName: vnetInfo.name
-    vnetResourceGroupName: resourceGroup().name
+    tags: tags
+    name: websiteCertificateName
+    keyVaulName: keyVaultName
+    certificateValue: websiteCertificateValue
   }
 }
 

@@ -6,7 +6,7 @@ param (
   [string]
   $parameterFile = ".\agwAksDiffVnets\parameters.json",
   [string] 
-  $deploymentPrefix='vwan-azfw-agic-tlsinspect'
+  $deploymentPrefix='vwan-azfw-agw-tlsinspect'
   )
 
 $deploymentName="$deploymentPrefix-$(New-Guid)"

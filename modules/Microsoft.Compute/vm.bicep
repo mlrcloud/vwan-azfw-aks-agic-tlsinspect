@@ -23,13 +23,12 @@ resource vm 'Microsoft.Compute/virtualMachines@2021-04-01' = {
     }
     storageProfile: {
       imageReference: {
-        publisher: 'MicrosoftWindowsServer'
-        offer: 'WindowsServer'
-        sku: '2019-Datacenter'
+        publisher: 'canonical'
+        offer: '0001-com-ubuntu-minimal-focal'
+        sku: 'minimal-20_04-lts-gen2'
         version: 'latest'
       }
       osDisk: {
-        osType: 'Windows'
         createOption: 'FromImage'
         caching: 'ReadWrite'
         managedDisk: {
@@ -42,9 +41,11 @@ resource vm 'Microsoft.Compute/virtualMachines@2021-04-01' = {
       computerName: name
       adminUsername: adminUsername
       adminPassword: adminPassword
-      windowsConfiguration: {
+      linuxConfiguration: {
+        patchSettings: {
+          patchMode: 'ImageDefault'
+        }
         provisionVMAgent: true
-        enableAutomaticUpdates: true
       }
       allowExtensionOperations: true
     }
