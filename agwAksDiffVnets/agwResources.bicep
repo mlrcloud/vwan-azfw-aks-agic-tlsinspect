@@ -90,7 +90,7 @@ module agwPipResources '../modules/Microsoft.Network/publicIp.bicep' = {
 }
 
 module appgwResources '../modules/Microsoft.Network/applicationGateways.bicep' = {
-  name: 'agwResources_Deploy'
+  name: 'appgwResources_Deploy'
   params: {
     name: agwName
     location: location
