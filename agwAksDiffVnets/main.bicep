@@ -10,6 +10,8 @@ param env string
 @description('Tags associated with all resources')
 param tags object 
 
+
+var deploy = false
 // Resource Group Names
 
 @description('Resource Groups names')
@@ -209,12 +211,12 @@ var privateTrafficPrefix = [
 */
 // Checked
 
-resource monitoringResourceGroup 'Microsoft.Resources/resourceGroups@2021-01-01' = {
+resource monitoringResourceGroup 'Microsoft.Resources/resourceGroups@2021-01-01' = if (deploy) {
   name: monitoringResourceGroupName
   location: location
 }
 
-module monitoringResources '../base/monitoring/monitoringResources.bicep' = {
+module monitoringResources '../base/monitoring/monitoringResources.bicep' = if (deploy) {
   scope: monitoringResourceGroup
   name: 'monitoringResources_Deploy'
   params: {
@@ -232,12 +234,12 @@ module monitoringResources '../base/monitoring/monitoringResources.bicep' = {
 */
 // Checked
 
-resource sharedResourceGroup 'Microsoft.Resources/resourceGroups@2021-01-01' = {
+resource sharedResourceGroup 'Microsoft.Resources/resourceGroups@2021-01-01' = if (deploy) {
   name: sharedResourceGroupName
   location: location
 }
 
-module sharedResources '../base/shared/sharedResources.bicep' = {
+module sharedResources '../base/shared/sharedResources.bicep' = if (deploy) {
   scope: sharedResourceGroup
   name: 'sharedResources_Deploy'
   dependsOn: [
@@ -263,12 +265,12 @@ module sharedResources '../base/shared/sharedResources.bicep' = {
   Agw spoke resources
 */
 
-resource agwResourceGroup 'Microsoft.Resources/resourceGroups@2021-01-01' = {
+resource agwResourceGroup 'Microsoft.Resources/resourceGroups@2021-01-01' = if (deploy) {
   name: agwResourceGroupName
   location: location
 }
 
-module agwSpokeResources 'agwSpokeResources.bicep' = {
+module agwSpokeResources 'agwSpokeResources.bicep' = if (deploy) {
   scope: agwResourceGroup
   name: 'agwSpokeResources_Deploy'
   dependsOn: [
@@ -290,7 +292,7 @@ module agwSpokeResources 'agwSpokeResources.bicep' = {
   AKS spoke resources
 */
 
-resource aksResourceGroup 'Microsoft.Resources/resourceGroups@2021-01-01' = {
+resource aksResourceGroup 'Microsoft.Resources/resourceGroups@2021-01-01' = if (deploy) {
   name: aksResourceGroupName
   location: location
 }
@@ -333,12 +335,12 @@ var keyVaultSku = keyVaultConfiguration.sku
 var keyVaultSoftDeleteRetentionInDays = keyVaultConfiguration.softDeleteRetentionInDays 
 var keyVaultPrivateEndpointName = keyVaultConfiguration.privateEndpointName 
 
-resource mngmntResourceGroup 'Microsoft.Resources/resourceGroups@2021-01-01' = {
+resource mngmntResourceGroup 'Microsoft.Resources/resourceGroups@2021-01-01' = if (deploy) {
   name: mngmntResourceGroupName
   location: location
 }
 
-module mngmntResources '../base/mngmnt/mngmntResources.bicep' = {
+module mngmntResources '../base/mngmnt/mngmntResources.bicep' = if (deploy) {
   scope: mngmntResourceGroup
   name: 'mngmntResources_Deploy'
   dependsOn: [
@@ -378,17 +380,17 @@ module mngmntResources '../base/mngmnt/mngmntResources.bicep' = {
   Network connectivity and security
 */
 
-resource securityResourceGroup 'Microsoft.Resources/resourceGroups@2021-01-01' = {
+resource securityResourceGroup 'Microsoft.Resources/resourceGroups@2021-01-01' = if (deploy) {
   name: securityResourceGroupName
   location: location
 }
 
-resource hubResourceGroup 'Microsoft.Resources/resourceGroups@2021-01-01' = {
+resource hubResourceGroup 'Microsoft.Resources/resourceGroups@2021-01-01' = if (deploy) {
   name: hubResourceGroupName
   location: location
 }
 
-module vhubResources '../base/vhub/vhubResources.bicep' = {
+module vhubResources '../base/vhub/vhubResources.bicep' = if (deploy) {
   scope: hubResourceGroup
   name: 'vhubResources_Deploy'
   dependsOn: [

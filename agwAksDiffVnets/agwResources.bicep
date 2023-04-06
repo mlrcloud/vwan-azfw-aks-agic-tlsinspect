@@ -34,6 +34,7 @@ module agwIdentityResources '../modules/Microsoft.Authorization/userAssignedIden
 
 module websiteCerificateResources '../modules/Microsoft.KeyVault/certificate.bicep' = {
   name: 'websiteCertificateResources_Deploy'
+  scope: resourceGroup(mngmntResourceGroupName)
   params: {
     tags: tags
     name: websiteCertificateName
@@ -88,7 +89,7 @@ module agwPipResources '../modules/Microsoft.Network/publicIp.bicep' = {
   }
 }
 
-module agwResources '../modules/Microsoft.Network/applicationGateways.bicep' = {
+module appgwResources '../modules/Microsoft.Network/applicationGateways.bicep' = {
   name: 'agwResources_Deploy'
   params: {
     name: agwName
