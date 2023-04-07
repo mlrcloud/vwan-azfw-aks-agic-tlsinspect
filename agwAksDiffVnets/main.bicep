@@ -11,7 +11,7 @@ param env string
 param tags object 
 
 
-var deploy = false
+var deploy = true
 // Resource Group Names
 
 @description('Resource Groups names')
@@ -465,7 +465,6 @@ var aksEnableSecretStoreCSIDriver = aksConfiguration.enableSecretStoreCSIDriver
 var aksServiceCidr = aksConfiguration.serviceCidr
 var aksDnsServiceIp = aksConfiguration.dnsServiceIp
 var aksUpgradeChannel = aksConfiguration.upgradeChannel
-var aksSnetRoleAssigmentName = aksConfiguration.snetRoleAssigmentName
 
 
 module aksResources 'aksResources.bicep' = {

@@ -31,7 +31,7 @@ resource fwInterCACertificate 'Microsoft.KeyVault/vaults/secrets@2022-07-01' exi
   parent: keyVault
 }
 
-resource fwPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' = {
+resource fwPolicy 'Microsoft.Network/firewallPolicies@2022-09-01' = {
   name: fwPolicyInfo.name
   location: location
   tags: tags
