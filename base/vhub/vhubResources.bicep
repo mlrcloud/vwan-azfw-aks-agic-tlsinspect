@@ -46,9 +46,9 @@ var dnatRulesInfo = {
       rules: [
         {
           ruleType: 'NatRule'
-          name: 'dns-rdp-access'
-          translatedAddress: '10.0.4.4'
-          translatedPort: 3389
+          name: 'dns-ssh-access'
+          translatedAddress: '10.0.1.4'
+          translatedPort: 22
           ipProtocols: [
               'TCP'
           ]
@@ -60,7 +60,7 @@ var dnatRulesInfo = {
               firewallResources.outputs.fwPublicIp.address
           ]
           destinationPorts: [
-              3389
+              22
           ]
         }
       ]
