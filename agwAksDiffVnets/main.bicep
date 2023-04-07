@@ -83,13 +83,23 @@ var dnsForwardingRulesInfo = [
     name: 'toManuelPablo'
     domain: 'manuelpablo.com.'
     state: 'Enabled' //If centrilazedResolverDns=True you should set this to 'Disabled'
-    dnsServers:  []
+    dnsServers: (enableDnsProxy) ? [
+      {
+        ipAddress: fwPrivateIp
+        port: 53
+      }
+    ] : []
   }
   {
     name: 'toKeyvault'
     domain: 'privatelink.vaultcore.azure.net.'
     state: 'Enabled' //If centrilazedResolverDns=True you should set this to 'Disabled'
-    dnsServers:  []
+    dnsServers: (enableDnsProxy) ? [
+      {
+        ipAddress: fwPrivateIp
+        port: 53
+      }
+    ] : []
   }
 ]
 
