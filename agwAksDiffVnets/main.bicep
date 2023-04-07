@@ -297,7 +297,7 @@ resource aksResourceGroup 'Microsoft.Resources/resourceGroups@2021-01-01' = if (
   location: location
 }
 
-module aksSpokeResources 'aksSpokeResources.bicep' = {
+module aksSpokeResources 'aksSpokeResources.bicep' = if (deploy) {
   scope: aksResourceGroup
   name: 'aksSpokeResources_Deploy'
   dependsOn: [
