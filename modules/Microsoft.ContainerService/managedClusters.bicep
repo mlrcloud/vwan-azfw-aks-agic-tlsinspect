@@ -105,16 +105,4 @@ resource managedClusters 'Microsoft.ContainerService/managedClusters@2022-06-01'
   }
 }
 
-/*
-module ClusterSubnetRoleAssignmentDeployment_20230406125524 './nested_ClusterSubnetRoleAssignmentDeployment_20230406125524.bicep' = {
-  name: 'ClusterSubnetRoleAssignmentDeployment-20230406125524'
-  scope: resourceGroup('76b61f34-c67e-4742-9ad7-02492ceef8a4', 'rg-aks')
-  params: {
-    reference_parameters_resourceName_2022_06_01_Full_identity_principalId: reference(resourceName, '2022-06-01', 'Full')
-  }
-  dependsOn: [
-    resourceName_resource
-  ]
-}
-
-*/
+output clusterPrincipalId string = managedClusters.identity.principalId

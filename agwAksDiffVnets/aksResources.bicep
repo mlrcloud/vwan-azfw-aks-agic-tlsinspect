@@ -23,7 +23,7 @@ param keyVaultName string
 @secure()
 param websiteCertificateValue string
 
-module aksClusterResources '../modules/Microsoft.ContainerService/managedClusters.bicep' = {
+module aksCluster '../modules/Microsoft.ContainerService/managedClusters.bicep' = {
   name: 'aksClusterResources_Deploy'
   params: {
     location: location
@@ -44,6 +44,23 @@ module aksClusterResources '../modules/Microsoft.ContainerService/managedCluster
     dnsServiceIp: aksDnsServiceIp
     upgradeChannel: aksUpgradeChannel
   }
+}
+
+var aksSnetRoleDefinitionId = '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7'
+var aksSnetRoleAssigmentName = format('{0}/{1}', '${vnetInfo.name}/${snetsInfo[0].name}/Microsoft.Authorization/',guid(resourceGroup().id, aksCluster.outputs.clusterPrincipalId))
+
+
+module aksSnetRoleAssignment '../modules/Microsoft.Authorization/roleAssigment.bicep' = {
+  name: 'aksSnetRoleAssignmentResources_Deploy'
+  params: {
+    name: aksSnetRoleAssigmentName
+    roleDefinitionId: aksSnetRoleDefinitionId
+    principalId: aksCluster.outputs.clusterPrincipalId
+    scope: snetsInfo[0].id
+  }
+  dependsOn: [
+    aksCluster
+  ]
 }
 
 module websiteCertificateResources '../modules/Microsoft.KeyVault/certificate.bicep' = {
