@@ -54,7 +54,7 @@ resource wafPolicy 'Microsoft.Network/ApplicationGatewayWebApplicationFirewallPo
   name: wafPolicyName
 }
 
-resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' existing = {
+resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   name: agwIdentityName
 }
 resource applicationGateway 'Microsoft.Network/applicationGateways@2021-08-01' = {

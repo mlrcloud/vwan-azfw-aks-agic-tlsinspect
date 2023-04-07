@@ -14,7 +14,7 @@ resource logWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' exis
   scope: resourceGroup(monitoringResourceGroupName)
 }
 
-resource fwPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' existing = {
+resource fwPolicy 'Microsoft.Network/firewallPolicies@2022-09-01' existing = {
   name: fwPolicyInfo.name
 }
 

@@ -17,7 +17,7 @@ resource logWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' exis
   scope: resourceGroup(monitoringResourceGroupName)
 }
 
-resource fwIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' existing = {
+resource fwIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   name: fwIdentityName
 }
 
@@ -45,12 +45,14 @@ resource fwPolicy 'Microsoft.Network/firewallPolicies@2022-09-01' = {
     sku: {
       tier: 'Premium'
     }
+    /*
     transportSecurity:{
       certificateAuthority: {
         name: fwInterCACertificateName
         keyVaultSecretId: fwInterCACertificate.properties.secretUri
       }
     }
+    */
     threatIntelMode: 'Alert'
     intrusionDetection: {
       mode: 'Alert'
@@ -75,4 +77,5 @@ resource fwPolicy 'Microsoft.Network/firewallPolicies@2022-09-01' = {
     }
   }
 }
+
 

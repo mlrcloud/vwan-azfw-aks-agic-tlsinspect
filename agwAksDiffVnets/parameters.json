@@ -170,7 +170,7 @@
                 "publicNetworkAccess": "Disabled",
                 "softDeleteRetentionInDays": 7,
                 "accessPolicies": {
-                    "objectId": "1220e9fe-9f4a-4446-8423-928b6ecf9e04",
+                    "objectId": "21ac6ecc-7bdb-4f26-bbba-b5c18c24a182",
                     "permissions": {
                         "certificates": [
                             "Get",
@@ -190,7 +190,10 @@
                             "DeleteIssuers"
                         ],
                         "keys": [],
-                        "secrets": []
+                        "secrets": [
+                            "Get",
+                            "List"
+                        ]
                     }
                 }
             }
