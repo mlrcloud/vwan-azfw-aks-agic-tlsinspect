@@ -5,8 +5,6 @@ param tags object
 param agwIdentityName string
 param keyVaultName string
 param websiteCertificateName string
-@secure()
-param websiteCertificateValue string
 param mngmntResourceGroupName string
 param agwIdentityKeyVaultAccessPolicyName string
 param wafPolicyName string
@@ -32,18 +30,7 @@ module agwIdentityResources '../modules/Microsoft.Authorization/userAssignedIden
   }
 }
 
-module websiteCerificateResources '../modules/Microsoft.KeyVault/certificate.bicep' = {
-  name: 'websiteCertificateResources_Deploy'
-  scope: resourceGroup(mngmntResourceGroupName)
-  params: {
-    tags: tags
-    name: websiteCertificateName
-    keyVaulName: keyVaultName
-    certificateValue: websiteCertificateValue
-  }
-}
-
-module agwIdentityKeyVaultAccessPolicy '../modules/Microsoft.KeyVault/accessPolicies.bicep' = {
+module agwIdentityKeyVaultAccessPolicyResources '../modules/Microsoft.KeyVault/accessPolicies.bicep' = {
   name: 'agwIdentityKeyVaultAccessPolicyResources_Deploy'
   scope: resourceGroup(mngmntResourceGroupName)
   params: {
@@ -113,7 +100,6 @@ module appgwResources '../modules/Microsoft.Network/applicationGateways.bicep' =
   }
   dependsOn: [
     agwIdentityResources
-    websiteCerificateResources
     wafPolicyResources
     agwPipResources
   ]

@@ -520,7 +520,7 @@ module agwResources 'agwResources.bicep' = {
   scope: agwResourceGroup
   name: 'agwResources_Deploy'
   dependsOn: [
-    vhubResources
+    aksResources
   ]
   params: {
     location:location
@@ -528,7 +528,6 @@ module agwResources 'agwResources.bicep' = {
     agwIdentityName: agwIdentityName
     keyVaultName: keyVaultName
     websiteCertificateName: websiteCertificateName
-    websiteCertificateValue: websiteCertificateValue
     mngmntResourceGroupName: mngmntResourceGroupName
     agwIdentityKeyVaultAccessPolicyName: agwIdentityKeyVaultAccessPolicyName
     wafPolicyName: wafPolicyName
