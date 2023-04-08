@@ -11,7 +11,7 @@ param env string
 param tags object 
 
 
-var deploy = true
+var deploy = false
 // Resource Group Names
 
 @description('Resource Groups names')
