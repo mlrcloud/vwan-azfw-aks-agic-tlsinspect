@@ -45,14 +45,12 @@ resource fwPolicy 'Microsoft.Network/firewallPolicies@2022-09-01' = {
     sku: {
       tier: 'Premium'
     }
-    /*
     transportSecurity:{
       certificateAuthority: {
         name: fwInterCACertificateName
         keyVaultSecretId: fwInterCACertificate.properties.secretUri
       }
     }
-    */
     threatIntelMode: 'Alert'
     intrusionDetection: {
       mode: 'Alert'
