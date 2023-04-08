@@ -100,6 +100,7 @@ module appgwResources '../modules/Microsoft.Network/applicationGateways.bicep' =
   }
   dependsOn: [
     agwIdentityResources
+    agwIdentityKeyVaultAccessPolicyResources
     wafPolicyResources
     agwPipResources
   ]
