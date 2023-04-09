@@ -10,6 +10,10 @@ param keyVaulName string
 param fwInterCACertificateName string
 param enableProxy bool
 param dnsResolverInboundEndpointIp string
+param spnClientId string
+@secure()
+param spnClientSecret string 
+param tenantId string 
 
 
 resource logWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
@@ -35,26 +39,26 @@ resource fwPolicy 'Microsoft.Network/firewallPolicies@2022-09-01' = {
   name: fwPolicyInfo.name
   location: location
   tags: tags
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${fwIdentity.id}': {}
-    }
-  }
+  // identity: {
+  //   type: 'UserAssigned'
+  //   userAssignedIdentities: {
+  //     '${fwIdentity.id}': {}
+  //   }
+  // }
   properties: {
     sku: {
       tier: 'Premium'
     }
-    transportSecurity:{
-      certificateAuthority: {
-        name: fwInterCACertificateName
-        keyVaultSecretId: fwInterCACertificate.properties.secretUri
-      }
-    }
-    threatIntelMode: 'Alert'
-    intrusionDetection: {
-      mode: 'Alert'
-    }
+    // transportSecurity:{
+    //   certificateAuthority: {
+    //     name: fwInterCACertificateName
+    //     keyVaultSecretId: fwInterCACertificate.properties.secretUri
+    //   }
+    // }
+    // threatIntelMode: 'Alert'
+    // intrusionDetection: {
+    //   mode: 'Alert'
+    // }
     snat: {
       privateRanges: fwPolicyInfo.snatRanges
     }
@@ -76,4 +80,17 @@ resource fwPolicy 'Microsoft.Network/firewallPolicies@2022-09-01' = {
   }
 }
 
-
+resource tlsInspection 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  kind: 'AzurePowerShell'
+  name: 'tlsInspection'
+  location: location
+  properties: {
+    azPowerShellVersion: '8.3'
+    scriptContent: 'Import-Module Az.Accounts -RequiredVersion 2.12.1; Import-Module Az.Network -RequiredVersion 3.0.0; $SecuredPassword = ConvertTo-SecureString ${spnClientSecret} -AsPlainText -Force; $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList ${spnClientId}, $SecuredPassword; Connect-AzAccount -ServicePrincipal -TenantId ${tenantId} -Credential $Credential; $intrusionDetection = New-AzFirewallPolicyIntrusionDetection -Mode "Alert"; Set-AzFirewallPolicy -Name ${fwPolicyInfo.name} -ResourceGroupName ${resourceGroup().name} -Location ${location} -TransportSecurityName "tsName" -TransportSecurityKeyVaultSecretId ${fwInterCACertificate.properties.secretUri} -UserAssignedIdentityId ${fwIdentity.id} -ThreatIntelMode "Alert" -IntrusionDetection $intrusionDetection -SkuTier "Premium"'
+    cleanupPreference: 'Always'
+    retentionInterval: 'PT1H'
+  }
+  dependsOn: [
+    fwPolicy
+  ]
+}

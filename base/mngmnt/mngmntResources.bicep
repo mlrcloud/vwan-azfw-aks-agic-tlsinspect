@@ -2,6 +2,14 @@
 // TODO: verify the required parameters
 
 // Global Parameters
+param customScriptName string
+param spnClientId string
+@secure()
+param spnClientSecret string
+param templateBaseUrl string
+param tenantId string
+param aksResourceGroupName string
+param dnsPrivateZoneResourceGroupName string
 param location string = resourceGroup().location
 param tags object
 param vnetInfo object 
@@ -17,6 +25,9 @@ param vmSize string
 param vmAdminUsername string
 @secure()
 param vmAdminPassword string
+param privateDnsZonesName string
+param aksName string
+param certName string
 param keyVaultName string
 param keyVaultAccessPolicies object
 param keyVaultEnabledForDeployment bool
@@ -30,6 +41,9 @@ param keyVaultSku string
 param keyVaultSoftDeleteRetentionInDays int
 param keyVaultPrivateEndpointName string
 param keyVaultPrivateDnsZoneName string
+param downloadFile string
+param fqdnBackendPool string
+var keyVaultNameResourceGroupName = resourceGroup().name
 
 
 module vnetResources '../../modules/Microsoft.Network/vnet.bicep' = {
@@ -90,7 +104,22 @@ module vmResources '../../modules/Microsoft.Compute/vm.bicep' = {
   }
 }
 
-module keyVaultResources '../../modules/Microsoft.keyVault/vaults.bicep' = {
+module vmCustomScript '../../modules/Microsoft.Compute/customScript.bicep' = {
+  name: 'customScriptResources_Deploy'
+  dependsOn: [
+    vmResources
+  ]
+  params: {
+    downloadFile: downloadFile
+    vmName: vmName
+    name: customScriptName
+    location: location
+    templateBaseUrl: templateBaseUrl
+    commandToExecute: 'bash download.sh ${vmAdminUsername} ${spnClientId} ${spnClientSecret} ${tenantId} ${aksResourceGroupName} ${location} ${privateDnsZonesName} ${aksName} ${keyVaultName} ${certName} ${dnsPrivateZoneResourceGroupName} ${templateBaseUrl} ${keyVaultNameResourceGroupName} ${fqdnBackendPool}'
+  }
+}
+
+module keyVaultResources '../../modules/Microsoft.KeyVault/vaults.bicep' = {
   name: 'keyVaultResources_Deploy'
   params: {
     location: location

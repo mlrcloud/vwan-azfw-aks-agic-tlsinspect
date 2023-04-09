@@ -2,6 +2,24 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "privateDnsZonesName": {
+            "value": "manuelpablo.com"
+        },
+        "vmMngmntAdminPassword": {
+            "value": "Pa$$word1!"
+        },
+        "spnClientId": {
+            "value": "XXXXXXX-XXXXXX-XXXXXX"
+        },
+        "spnClientSecret": {
+            "value": "XXXXXXX-XXXXXX-XXXXXX"
+        },
+        "tenantId": {
+            "value": "XXXXXXX-XXXXXX-XXXXXX"
+        },
+        "templateBaseUrl": {
+            "value": "https://raw.githubusercontent.com/pabloameijeirascanay/test/main/artifacts/"
+        },
         "location": {
             "value": "westeurope"
         },
@@ -229,24 +247,7 @@
                                 },
                                 "name": "AksFwWeRuleCollection",
                                 "priority": 100,
-                                "rules": [
-                                    {
-                                        "ruleType": "ApplicationRule",
-                                        "name": "Allow-AzureMonitor",
-                                        "protocols": [
-                                            {
-                                                "protocolType": "Https",
-                                                "port": 443
-                                            }
-                                        ],
-                                        "targetFqdns": [
-                                            "*.monitor.core.windows.net"
-                                        ],
-                                        "sourceAddresses": [
-                                            "*"
-                                        ]
-                                    }
-                                ]
+                                "rules": []
                             }
                         ]
                     }
@@ -258,7 +259,7 @@
                         "ruleCollections": [
                             {
                                 "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
-                                "name": "Windows",
+                                "name": "aksfwnr",
                                 "action": {
                                     "type": "Allow"
                                 },
@@ -267,7 +268,7 @@
                                     {
                                         "ruleType": "NetworkRule",
                                         "sourceAddresses": [
-                                            "*"
+                                            "10.0.2.0/24"
                                         ],
                                         "destinationAddresses": [
                                             "*"
@@ -278,7 +279,23 @@
                                         "ipProtocols": [
                                             "Any"
                                         ],
-                                        "name": "All-Traffic-Allowed"
+                                        "name": "All-Traffic-Allowed-AKS"
+                                    },
+                                    {
+                                        "ruleType": "NetworkRule",
+                                        "sourceAddresses": [
+                                            "10.0.1.0/24"
+                                        ],
+                                        "destinationAddresses": [
+                                            "*"
+                                        ],
+                                        "destinationPorts": [
+                                            "*"
+                                        ],
+                                        "ipProtocols": [
+                                            "Any"
+                                        ],
+                                        "name": "All-Traffic-Allowed-VM"
                                     }
                                 ]
                             }

@@ -552,4 +552,3 @@ module agwResources 'agwResources.bicep' = {
 */
 
 output logWorkspaceName string = monitoringResources.outputs.logWorkspaceName
-
