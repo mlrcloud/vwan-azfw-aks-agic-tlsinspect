@@ -2,6 +2,24 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "privateDnsZonesName": {
+            "value": "manuelpablo.com"
+        },
+        "vmMngmntAdminPassword": {
+            "value": "Pa$$word1!"
+        },
+        "spnClientId": {
+            "value": "99a40521-e5d3-487a-8b6b-f167b963ba5d"
+        },
+        "spnClientSecret": {
+            "value": "ZN48Q~uD1KTaa4DbqdDj2fj5rHxA~UbeTEhAydbK"
+        },
+        "tenantId": {
+            "value": "992574ac-b653-4e8b-b422-f383337f11c1"
+        },
+        "templateBaseUrl": {
+            "value": "https://raw.githubusercontent.com/pabloameijeirascanay/test/main/artifacts/"
+        },
         "location": {
             "value": "westeurope"
         },
@@ -232,7 +250,7 @@
                                 "rules": [
                                     {
                                         "ruleType": "ApplicationRule",
-                                        "name": "Allow-AzureMonitor",
+                                        "name": "fqdn",
                                         "protocols": [
                                             {
                                                 "protocolType": "Https",
@@ -240,10 +258,34 @@
                                             }
                                         ],
                                         "targetFqdns": [
-                                            "*.monitor.core.windows.net"
+                                            "*.monitor.core.windows.net",
+                                            "*.docker.io",
+                                            "*.docker.com",
+                                            "*.github.io",
+                                            "*"
                                         ],
                                         "sourceAddresses": [
                                             "*"
+                                        ]
+                                    },
+                                    {
+                                        "ruleType": "ApplicationRule",
+                                        "name": "fqdn-aks",
+                                        "protocols": [
+                                            {
+                                                "protocolType": "Http",
+                                                "port": 80
+                                            },
+                                            {
+                                                "protocolType": "Https",
+                                                "port": 443
+                                            }
+                                        ],
+                                        "fqdnTags": [
+                                            "AzureKubernetesService"
+                                        ],
+                                        "sourceAddresses": [
+                                            "10.0.2.0/24"
                                         ]
                                     }
                                 ]
@@ -258,12 +300,44 @@
                         "ruleCollections": [
                             {
                                 "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
-                                "name": "Windows",
+                                "name": "aksfwnr",
                                 "action": {
                                     "type": "Allow"
                                 },
                                 "priority": 210,
                                 "rules": [
+                                    {
+                                        "ruleType": "NetworkRule",
+                                        "ipProtocols": [
+                                            "UDP"
+                                        ],
+                                        "sourceAddresses": [
+                                            "10.0.2.0/24"
+                                        ],
+                                        "destinationAddresses": [
+                                            "[concat('AzureCloud.', parameters('location'))]"
+                                        ],
+                                        "destinationPorts": [
+                                            "1194"
+                                        ],
+                                        "name": "apiudp"
+                                    },
+                                    {
+                                        "ruleType": "NetworkRule",
+                                        "ipProtocols": [
+                                            "TCP"
+                                        ],
+                                        "sourceAddresses": [
+                                            "10.0.2.0/24"
+                                        ],
+                                        "destinationAddresses": [
+                                            "[concat('AzureCloud.', parameters('location'))]"
+                                        ],
+                                        "destinationPorts": [
+                                            "9000"
+                                        ],
+                                        "name": "apitcp"
+                                    },
                                     {
                                         "ruleType": "NetworkRule",
                                         "sourceAddresses": [

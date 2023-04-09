@@ -2,6 +2,9 @@ targetScope = 'subscription'
 
 // Global Parameters
 
+@description('Random GUID for cluster names')
+param guid string = substring(newGuid(), 0, 4)
+
 @description('Azure region where resource would be deployed')
 param location string
 
@@ -11,7 +14,7 @@ param env string
 param tags object 
 
 
-var deploy = false
+var deploy = true
 // Resource Group Names
 
 @description('Resource Groups names')
@@ -24,6 +27,14 @@ var agwResourceGroupName = resourceGroupNames.agw
 var aksResourceGroupName = resourceGroupNames.aks
 var securityResourceGroupName = resourceGroupNames.security
 var mngmntResourceGroupName = resourceGroupNames.mngmnt
+
+// var monitoringResourceGroupName = '${resourceGroupNames.monitoring}-${guid}'
+// var hubResourceGroupName = '${resourceGroupNames.hub}-${guid}'
+// var sharedResourceGroupName = '${resourceGroupNames.shared}-${guid}'
+// var agwResourceGroupName = '${resourceGroupNames.agw}-${guid}'
+// var aksResourceGroupName = '${resourceGroupNames.aks}-${guid}'
+// var securityResourceGroupName = '${resourceGroupNames.security}-${guid}'
+// var mngmntResourceGroupName = '${resourceGroupNames.mngmnt}-${guid}'
 
 
 // Monitoring resources
@@ -48,10 +59,13 @@ var dnsResolverInboundIp = dnsResolverInfo.inboundEndpointIp
 var dnsResolverOutboundEndpointName = dnsResolverInfo.outboundEndpointName
 var dnsForwardingRulesetsName = dnsResolverInfo.dnsForwardingRulesetsName
 
+@description('Application Azure Private Zone Name')
+param privateDnsZonesName string
+
 //Add in this section the private dns zones you need
 var privateDnsZonesInfo = [
   {
-    name: 'manuelpablo.com'
+    name: privateDnsZonesName
     vnetLinkName: 'vnet-link-manuelpablo-to-'
     vnetName: sharedVnetInfo.name
   }//Required by Azure Firewall to determine the Web Application’s IP address as HTTP headers usually do not contain IP addresses. 
@@ -81,7 +95,7 @@ var dnsForwardingRulesInfo = [
   }
   {
     name: 'toManuelPablo'
-    domain: 'manuelpablo.com.'
+    domain: '${privateDnsZonesName}.'
     state: 'Enabled' //If centrilazedResolverDns=True you should set this to 'Disabled'
     dnsServers: (enableDnsProxy) ? [
       {
@@ -330,9 +344,20 @@ module aksSpokeResources 'aksSpokeResources.bicep' = if (deploy) {
 */
 //Checked
 
+@description('Service principal Id')
+param spnClientId string
+@description('Service principal secret')
+@secure()
+param spnClientSecret string
+@description('Tenant Id')
+param tenantId string
+param customScriptName string = 'custo-script'
+param templateBaseUrl string
+param downloadFile string = 'download.sh'
 param keyVaultConfiguration object
 
-var keyVaultName = keyVaultConfiguration.name
+
+var keyVaultName = '${keyVaultConfiguration.name}-${guid}' //'${keyVaultConfiguration.name}-${guid}'
 var keyVaultAccessPolicies = keyVaultConfiguration.accessPolicies
 var keyVaultEnabledForDeployment = keyVaultConfiguration.enabledForDeployment
 var keyVaultEnabledForDiskEncryption = keyVaultConfiguration.enabledForDiskEncryption 
@@ -357,6 +382,17 @@ module mngmntResources '../base/mngmnt/mngmntResources.bicep' = if (deploy) {
     sharedResources
   ]
   params: {
+    fqdnBackendPool: fqdnBackendPool
+    downloadFile: downloadFile
+    customScriptName: customScriptName
+    spnClientId: spnClientId
+    templateBaseUrl: templateBaseUrl
+    spnClientSecret: spnClientSecret
+    tenantId: tenantId
+    aksName: aksName
+    certName: websiteCertificateName
+    aksResourceGroupName: aksResourceGroupName
+    dnsPrivateZoneResourceGroupName: sharedResourceGroupName
     location:location
     tags: tags
     vnetInfo: mngmntVnetInfo 
@@ -370,6 +406,7 @@ module mngmntResources '../base/mngmnt/mngmntResources.bicep' = if (deploy) {
     vmSize: vmMngmntSize
     vmAdminUsername: vmMngmntAdminUsername
     vmAdminPassword: vmMngmntAdminPassword
+    privateDnsZonesName: privateDnsZonesName
     keyVaultName: keyVaultName
     keyVaultAccessPolicies: keyVaultAccessPolicies
     keyVaultEnabledForDeployment: keyVaultEnabledForDeployment
@@ -411,6 +448,9 @@ module vhubResources '../base/vhub/vhubResources.bicep' = if (deploy) {
     mngmntResources
   ]
   params: {
+    spnClientId: spnClientId
+    spnClientSecret: spnClientSecret
+    tenantId: tenantId
     location:location
     tags: tags
     securityResourceGroupName: securityResourceGroupName
@@ -465,7 +505,6 @@ var aksEnableSecretStoreCSIDriver = aksConfiguration.enableSecretStoreCSIDriver
 var aksServiceCidr = aksConfiguration.serviceCidr
 var aksDnsServiceIp = aksConfiguration.dnsServiceIp
 var aksUpgradeChannel = aksConfiguration.upgradeChannel
-
 
 module aksResources 'aksResources.bicep' = {
   scope: aksResourceGroup
