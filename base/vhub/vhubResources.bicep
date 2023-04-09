@@ -5,7 +5,6 @@
 param spnClientId string
 @secure()
 param spnClientSecret string 
-param tenantId string 
 param location string = resourceGroup().location
 param tags object
 param securityResourceGroupName string
@@ -160,8 +159,7 @@ module fwPolicyResources '../../modules/Microsoft.Network/fwPolicy.bicep' = {
   scope: resourceGroup(securityResourceGroupName)
   params: {
     spnClientId: spnClientId
-    spnClientSecret: spnClientSecret 
-    tenantId: tenantId 
+    spnClientSecret: spnClientSecret
     location: location
     tags: tags
     monitoringResourceGroupName: monitoringResourceGroupName

@@ -12,8 +12,7 @@ param enableProxy bool
 param dnsResolverInboundEndpointIp string
 param spnClientId string
 @secure()
-param spnClientSecret string 
-param tenantId string 
+param spnClientSecret string
 
 
 resource logWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
@@ -86,7 +85,7 @@ resource tlsInspection 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   location: location
   properties: {
     azPowerShellVersion: '8.3'
-    scriptContent: 'Import-Module Az.Accounts -RequiredVersion 2.12.1; Import-Module Az.Network -RequiredVersion 3.0.0; $SecuredPassword = ConvertTo-SecureString ${spnClientSecret} -AsPlainText -Force; $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList ${spnClientId}, $SecuredPassword; Connect-AzAccount -ServicePrincipal -TenantId ${tenantId} -Credential $Credential; $intrusionDetection = New-AzFirewallPolicyIntrusionDetection -Mode "Alert"; Set-AzFirewallPolicy -Name ${fwPolicyInfo.name} -ResourceGroupName ${resourceGroup().name} -Location ${location} -TransportSecurityName "tsName" -TransportSecurityKeyVaultSecretId ${fwInterCACertificate.properties.secretUri} -UserAssignedIdentityId ${fwIdentity.id} -ThreatIntelMode "Alert" -IntrusionDetection $intrusionDetection -SkuTier "Premium"'
+    scriptContent: 'Import-Module Az.Accounts -RequiredVersion 2.12.1; Import-Module Az.Network -RequiredVersion 3.0.0; $SecuredPassword = ConvertTo-SecureString ${spnClientSecret} -AsPlainText -Force; $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList ${spnClientId}, $SecuredPassword; Connect-AzAccount -ServicePrincipal -TenantId ${tenant().tenantId} -Credential $Credential; $intrusionDetection = New-AzFirewallPolicyIntrusionDetection -Mode "Alert"; Set-AzFirewallPolicy -Name ${fwPolicyInfo.name} -ResourceGroupName ${resourceGroup().name} -Location ${location} -TransportSecurityName "tsName" -TransportSecurityKeyVaultSecretId ${fwInterCACertificate.properties.secretUri} -UserAssignedIdentityId ${fwIdentity.id} -ThreatIntelMode "Alert" -IntrusionDetection $intrusionDetection -SkuTier "Premium"'
     cleanupPreference: 'Always'
     retentionInterval: 'PT1H'
   }

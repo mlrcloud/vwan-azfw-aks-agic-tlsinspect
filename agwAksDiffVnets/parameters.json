@@ -9,13 +9,13 @@
             "value": "Pa$$word1!"
         },
         "spnClientId": {
-            "value": "XXXXXXX-XXXXXX-XXXXXX"
+            "value": "99a40521-e5d3-487a-8b6b-f167b963ba5d"
         },
         "spnClientSecret": {
-            "value": "XXXXXXX-XXXXXX-XXXXXX"
+            "value": "ZN48Q~uD1KTaa4DbqdDj2fj5rHxA~UbeTEhAydbK"
         },
         "tenantId": {
-            "value": "XXXXXXX-XXXXXX-XXXXXX"
+            "value": "992574ac-b653-4e8b-b422-f383337f11c1"
         },
         "templateBaseUrl": {
             "value": "https://raw.githubusercontent.com/pabloameijeirascanay/test/main/artifacts/"

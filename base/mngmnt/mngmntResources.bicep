@@ -7,7 +7,6 @@ param spnClientId string
 @secure()
 param spnClientSecret string
 param templateBaseUrl string
-param tenantId string
 param aksResourceGroupName string
 param dnsPrivateZoneResourceGroupName string
 param location string = resourceGroup().location
@@ -115,7 +114,7 @@ module vmCustomScript '../../modules/Microsoft.Compute/customScript.bicep' = {
     name: customScriptName
     location: location
     templateBaseUrl: templateBaseUrl
-    commandToExecute: 'bash download.sh ${vmAdminUsername} ${spnClientId} ${spnClientSecret} ${tenantId} ${aksResourceGroupName} ${location} ${privateDnsZonesName} ${aksName} ${keyVaultName} ${certName} ${dnsPrivateZoneResourceGroupName} ${templateBaseUrl} ${keyVaultNameResourceGroupName} ${fqdnBackendPool}'
+    commandToExecute: 'bash download.sh ${vmAdminUsername} ${spnClientId} ${spnClientSecret} ${tenant().tenantId} ${aksResourceGroupName} ${location} ${privateDnsZonesName} ${aksName} ${keyVaultName} ${certName} ${dnsPrivateZoneResourceGroupName} ${templateBaseUrl} ${keyVaultNameResourceGroupName} ${fqdnBackendPool}'
   }
 }
 
