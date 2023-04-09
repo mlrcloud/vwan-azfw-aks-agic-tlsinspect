@@ -47,8 +47,7 @@ module aksCluster '../modules/Microsoft.ContainerService/managedClusters.bicep' 
 }
 
 var aksSnetRoleDefinitionId = '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7'
-var aksSnetRoleAssigmentName = guid(resourceGroup().id, aksCluster.outputs.clusterPrincipalId)
-var aksRGId = '/subscriptions/${subscription().subscriptionId}/resourcegroups/${resourceGroup().name}'
+var aksSnetRoleAssigmentName = format('{0}/{1}', '${vnetInfo.name}/${snetsInfo[0].name}/Microsoft.Authorization/',guid(resourceGroup().id, aksCluster.outputs.clusterPrincipalId))
 
 module aksSnetRoleAssignment '../modules/Microsoft.Authorization/roleAssigment.bicep' = {
   name: 'aksSnetRoleAssignmentResources_Deploy'
@@ -56,7 +55,7 @@ module aksSnetRoleAssignment '../modules/Microsoft.Authorization/roleAssigment.b
     name: aksSnetRoleAssigmentName
     roleDefinitionId: aksSnetRoleDefinitionId
     principalId: aksCluster.outputs.clusterPrincipalId
-    scope: aksRGId //snetsInfo[0].id --> ERROR: 'The language expression property 'id' doesn't exist, available properties are 'name, range, delegations, routeTable' //TOREVIEW: One vnet!!!
+    scope: snetsInfo[0].id//TOREVIEW: One vnet!!!
   }
   dependsOn: [
     aksCluster

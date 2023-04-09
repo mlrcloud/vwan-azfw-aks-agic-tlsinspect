@@ -30,7 +30,7 @@ module agwIdentityResources '../modules/Microsoft.Authorization/userAssignedIden
   }
 }
 
-module agwIdentityKeyVaultAccessPolicy '../modules/Microsoft.KeyVault/accessPolicies.bicep' = {
+module agwIdentityKeyVaultAccessPolicyResources '../modules/Microsoft.KeyVault/accessPolicies.bicep' = {
   name: 'agwIdentityKeyVaultAccessPolicyResources_Deploy'
   scope: resourceGroup(mngmntResourceGroupName)
   params: {
@@ -99,7 +99,8 @@ module appgwResources '../modules/Microsoft.Network/applicationGateways.bicep' =
     autoScaleMaxCapacity: autoScaleMaxCapacity
   }
   dependsOn: [
-    agwIdentityKeyVaultAccessPolicy
+    agwIdentityResources
+    agwIdentityKeyVaultAccessPolicyResources
     wafPolicyResources
     agwPipResources
   ]

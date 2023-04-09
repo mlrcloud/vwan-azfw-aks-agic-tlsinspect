@@ -28,14 +28,6 @@ var aksResourceGroupName = resourceGroupNames.aks
 var securityResourceGroupName = resourceGroupNames.security
 var mngmntResourceGroupName = resourceGroupNames.mngmnt
 
-// var monitoringResourceGroupName = '${resourceGroupNames.monitoring}-${guid}'
-// var hubResourceGroupName = '${resourceGroupNames.hub}-${guid}'
-// var sharedResourceGroupName = '${resourceGroupNames.shared}-${guid}'
-// var agwResourceGroupName = '${resourceGroupNames.agw}-${guid}'
-// var aksResourceGroupName = '${resourceGroupNames.aks}-${guid}'
-// var securityResourceGroupName = '${resourceGroupNames.security}-${guid}'
-// var mngmntResourceGroupName = '${resourceGroupNames.mngmnt}-${guid}'
-
 
 // Monitoring resources
 @description('Monitoring options')
@@ -66,7 +58,7 @@ param privateDnsZonesName string
 var privateDnsZonesInfo = [
   {
     name: privateDnsZonesName
-    vnetLinkName: 'vnet-link-manuelpablo-to-'
+    vnetLinkName: 'vnet-link-website-to-'
     vnetName: sharedVnetInfo.name
   }//Required by Azure Firewall to determine the Web Application’s IP address as HTTP headers usually do not contain IP addresses. 
   {
@@ -79,22 +71,7 @@ var privateDnsZonesInfo = [
 //Add in this section the dns forwarding rules you need 
 var dnsForwardingRulesInfo = [
   {
-    name: 'toOnpremise'
-    domain: 'mydomain.local.'
-    state: 'Enabled'
-    dnsServers:  [
-      {
-          ipAddress: '1.1.1.1'
-          port: 53
-      }
-      {
-          ipAddress: '1.2.3.4'
-          port: 53
-      }
-    ]
-  }
-  {
-    name: 'toManuelPablo'
+    name: 'toWebsite'
     domain: '${privateDnsZonesName}.'
     state: 'Enabled' //If centrilazedResolverDns=True you should set this to 'Disabled'
     dnsServers: (enableDnsProxy) ? [
@@ -357,7 +334,7 @@ param downloadFile string = 'download.sh'
 param keyVaultConfiguration object
 
 
-var keyVaultName = '${keyVaultConfiguration.name}-${guid}' //'${keyVaultConfiguration.name}-${guid}'
+var keyVaultName = '${keyVaultConfiguration.name}-${guid}'
 var keyVaultAccessPolicies = keyVaultConfiguration.accessPolicies
 var keyVaultEnabledForDeployment = keyVaultConfiguration.enabledForDeployment
 var keyVaultEnabledForDiskEncryption = keyVaultConfiguration.enabledForDiskEncryption 

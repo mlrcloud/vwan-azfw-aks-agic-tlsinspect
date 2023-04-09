@@ -35,7 +35,7 @@ module vnetResources '../modules/Microsoft.Network/vnet.bicep' = {
   ]
 }
 
-module rulesetsVnetLinks '../modules/Microsoft.Network/dnsForwardingRulesetsVnetLink.bicep' = if (!centrilazedResolverDns) {
+module rulesetsVnetLinksResources '../modules/Microsoft.Network/dnsForwardingRulesetsVnetLink.bicep' = if (!centrilazedResolverDns) {
   name: 'rulesetsVnetLinksResources_Deploy'
   scope: resourceGroup(sharedResourceGroupName)
   dependsOn: [
