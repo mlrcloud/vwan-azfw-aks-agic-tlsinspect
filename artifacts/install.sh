@@ -97,4 +97,13 @@ echo "##########################################################################
 echo "## Create the ingress...                                                            ##" 
 echo "######################################################################################"
 echo ""
+
+# Don't continue until ingress controller EXTERNAL-IP exists
+until [[ $EXTERNAL_IP =~ (10)(\.([2]([0-5][0-5]|[01234][6-9])|[1][0-9][0-9]|[1-9][0-9]|[0-9])){3} ]]; do
+  EXTERNAL_IP=$(kubectl get svc nginx-ingress-ingress-nginx-controller -n ingress-nginx -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+  echo "Waiting for nginx ingress controller EXTERNAL-IP, hold tight...(5s sleeping loop)"
+  sleep 5
+done
+
+# Create the ingress
 envsubst < ingress.yaml | kubectl apply -f -
