@@ -225,7 +225,6 @@
                 "policy": {
                     "name": "fwpolicy",
                     "snatRanges": [
-                        "10.0.0.0/8",
                         "172.16.0.0/12",
                         "192.168.0.0/16",
                         "198.18.0.0/15",
@@ -267,6 +266,22 @@
                                         "sourceAddresses": [
                                             "10.0.2.0/24"
                                         ],
+                                        "destinationFqdns": [
+                                            "kv-agw-fw-aks-tls-8eae.vault.azure.net"
+                                        ],
+                                        "destinationPorts": [
+                                            "443"
+                                        ],
+                                        "ipProtocols": [
+                                            "TCP"
+                                        ],
+                                        "name": "fromAgwToKeyVault"
+                                    },
+                                    {
+                                        "ruleType": "NetworkRule",
+                                        "sourceAddresses": [
+                                            "10.0.1.0/24"
+                                        ],
                                         "destinationAddresses": [
                                             "*"
                                         ],
@@ -276,15 +291,15 @@
                                         "ipProtocols": [
                                             "Any"
                                         ],
-                                        "name": "All-Traffic-Allowed-AKS"
+                                        "name": "All-Traffic-Allowed-VM"
                                     },
                                     {
                                         "ruleType": "NetworkRule",
                                         "sourceAddresses": [
-                                            "10.0.1.0/24"
+                                            "10.0.4.0/23"
                                         ],
                                         "destinationAddresses": [
-                                            "*"
+                                            ""
                                         ],
                                         "destinationPorts": [
                                             "*"

@@ -14,7 +14,7 @@ param env string
 param tags object 
 
 
-var deploy = true
+var deploy = false
 // Resource Group Names
 
 @description('Resource Groups names')
@@ -333,7 +333,7 @@ param downloadFile string = 'download.sh'
 param keyVaultConfiguration object
 
 
-var keyVaultName = '${keyVaultConfiguration.name}-${guid}'
+var keyVaultName = 'kv-agw-fw-aks-tls-8eae'//'${keyVaultConfiguration.name}-${guid}'
 var keyVaultAccessPolicies = keyVaultConfiguration.accessPolicies
 var keyVaultEnabledForDeployment = keyVaultConfiguration.enabledForDeployment
 var keyVaultEnabledForDiskEncryption = keyVaultConfiguration.enabledForDiskEncryption 
@@ -480,7 +480,7 @@ var aksServiceCidr = aksConfiguration.serviceCidr
 var aksDnsServiceIp = aksConfiguration.dnsServiceIp
 var aksUpgradeChannel = aksConfiguration.upgradeChannel
 
-module aksResources 'aksResources.bicep' = {
+module aksResources 'aksResources.bicep' = if (deploy) {
   scope: aksResourceGroup
   name: 'aksResources_Deploy'
   dependsOn: [
