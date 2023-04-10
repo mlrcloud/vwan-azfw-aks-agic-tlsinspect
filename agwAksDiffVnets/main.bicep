@@ -327,7 +327,6 @@ param spnClientId string
 @secure()
 param spnClientSecret string
 @description('Tenant Id')
-param tenantId string
 param customScriptName string = 'custo-script'
 param templateBaseUrl string
 param downloadFile string = 'download.sh'
@@ -365,7 +364,6 @@ module mngmntResources '../base/mngmnt/mngmntResources.bicep' = if (deploy) {
     spnClientId: spnClientId
     templateBaseUrl: templateBaseUrl
     spnClientSecret: spnClientSecret
-    tenantId: tenantId
     aksName: aksName
     certName: websiteCertificateName
     aksResourceGroupName: aksResourceGroupName
@@ -427,7 +425,6 @@ module vhubResources '../base/vhub/vhubResources.bicep' = if (deploy) {
   params: {
     spnClientId: spnClientId
     spnClientSecret: spnClientSecret
-    tenantId: tenantId
     location:location
     tags: tags
     securityResourceGroupName: securityResourceGroupName
