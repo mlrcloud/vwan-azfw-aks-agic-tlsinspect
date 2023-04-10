@@ -2,6 +2,7 @@
 param location string = resourceGroup().location
 param tags object
 param name string
+param privateIPAddress string
 param vnetName string
 param snetName string
 param keyVaultName string
@@ -28,11 +29,19 @@ resource privateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' existing 
   scope: resourceGroup(sharedResourceGroupName)
 }
 
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2021-02-01' = {
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2022-07-01' = {
   name: name
   location: location
   tags: tags
   properties: {
+    ipConfigurations: [
+      {
+        name: 'ipConfig'
+        properties: {
+          privateIPAddress: privateIPAddress
+        }
+      }
+    ]
     privateLinkServiceConnections: [
       {
         name: name

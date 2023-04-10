@@ -2,6 +2,8 @@
 // TODO: verify the required parameters
 
 // Global Parameters
+param location string = resourceGroup().location
+param tags object
 param customScriptName string
 param spnClientId string
 @secure()
@@ -9,8 +11,6 @@ param spnClientSecret string
 param templateBaseUrl string
 param aksResourceGroupName string
 param dnsPrivateZoneResourceGroupName string
-param location string = resourceGroup().location
-param tags object
 param vnetInfo object 
 param snetsInfo array
 param nicName string
@@ -20,15 +20,14 @@ param dnsForwardingRulesetsName string
 param sharedResourceGroupName string
 param vmName string
 param vmSize string
-@secure()
 param vmAdminUsername string
 @secure()
 param vmAdminPassword string
-param privateDnsZonesName string
+param websitePrivateDnsZonesName string
 param aksName string
 param certName string
 param keyVaultName string
-param keyVaultAccessPolicies object
+//param keyVaultAccessPolicies object TOREVIEW: probably we don't need this
 param keyVaultEnabledForDeployment bool
 param keyVaultEnabledForDiskEncryption bool
 param keyVaultEnabledForTemplateDeployment bool
@@ -39,6 +38,7 @@ param keyVaultPublicNetworkAccess string
 param keyVaultSku string
 param keyVaultSoftDeleteRetentionInDays int
 param keyVaultPrivateEndpointName string
+param keyVaultPrivateEndpointIp string
 param keyVaultPrivateDnsZoneName string
 param downloadFile string
 param fqdnBackendPool string
@@ -57,7 +57,7 @@ module vnetResources '../../modules/Microsoft.Network/vnet.bicep' = {
   }
 }
 
-module rulesetsVnetLinks '../../modules/Microsoft.Network/dnsForwardingRulesetsVnetLink.bicep' = if (!centrilazedResolverDns) {
+module rulesetsVnetLinksResources '../../modules/Microsoft.Network/dnsForwardingRulesetsVnetLink.bicep' = if (!centrilazedResolverDns) {
   name: 'mngmntRulesetsVnetLinksResources_Deploy'
   scope: resourceGroup(sharedResourceGroupName)
   dependsOn: [
@@ -103,7 +103,7 @@ module vmResources '../../modules/Microsoft.Compute/vm.bicep' = {
   }
 }
 
-module vmCustomScript '../../modules/Microsoft.Compute/customScript.bicep' = {
+module vmCustomScriptResources '../../modules/Microsoft.Compute/customScript.bicep' = {
   name: 'customScriptResources_Deploy'
   dependsOn: [
     vmResources
@@ -114,7 +114,7 @@ module vmCustomScript '../../modules/Microsoft.Compute/customScript.bicep' = {
     name: customScriptName
     location: location
     templateBaseUrl: templateBaseUrl
-    commandToExecute: 'bash download.sh ${vmAdminUsername} ${spnClientId} ${spnClientSecret} ${tenant().tenantId} ${aksResourceGroupName} ${location} ${privateDnsZonesName} ${aksName} ${keyVaultName} ${certName} ${dnsPrivateZoneResourceGroupName} ${templateBaseUrl} ${keyVaultNameResourceGroupName} ${fqdnBackendPool}'
+    commandToExecute: 'bash download.sh ${vmAdminUsername} ${spnClientId} ${spnClientSecret} ${tenant().tenantId} ${aksResourceGroupName} ${location} ${websitePrivateDnsZonesName} ${aksName} ${keyVaultName} ${certName} ${dnsPrivateZoneResourceGroupName} ${templateBaseUrl} ${keyVaultNameResourceGroupName} ${fqdnBackendPool}'
   }
 }
 
@@ -124,7 +124,7 @@ module keyVaultResources '../../modules/Microsoft.KeyVault/vaults.bicep' = {
     location: location
     tags: tags
     name: keyVaultName
-    accessPolicies: keyVaultAccessPolicies
+    //accessPolicies: keyVaultAccessPolicies TOREVIEW: probably we don't need this
     enabledForDeployment: keyVaultEnabledForDeployment
     enabledForDiskEncryption: keyVaultEnabledForDiskEncryption
     enabledForTemplateDeployment: keyVaultEnabledForTemplateDeployment
@@ -150,6 +150,7 @@ module keyVaultPrivateEndpointResources '../../modules/Microsoft.Network/keyVaul
     location: location
     tags: tags
     name: keyVaultPrivateEndpointName
+    privateIPAddress: keyVaultPrivateEndpointIp
     vnetName: vnetInfo.name
     snetName: snetsInfo[i].name
     keyVaultName: keyVaultName

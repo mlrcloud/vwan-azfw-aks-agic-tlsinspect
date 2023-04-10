@@ -1,11 +1,10 @@
 // Global Parameters
 param location string = resourceGroup().location
-param env string
 param tags object
 param deployLogWorkspace bool
 param existingLogWorkspaceName string
 
-var logWorkspaceName = 'law-${toLower(env)}'
+var logWorkspaceName = 'law-${toLower(tags.environment)}'
 
 module logWorkspaceResources '../../modules/Microsoft.OperationalInsights/logWorkspace.bicep' = if (deployLogWorkspace) {
   name: 'logWorkspaceResources_Deploy'
