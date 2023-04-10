@@ -9,13 +9,10 @@
             "value": "Pa$$word1!"
         },
         "spnClientId": {
-            "value": "99a40521-e5d3-487a-8b6b-f167b963ba5d"
+            "value": "738094dc-7bce-4c90-b1c2-1ab73e34cb2f"
         },
         "spnClientSecret": {
-            "value": "ZN48Q~uD1KTaa4DbqdDj2fj5rHxA~UbeTEhAydbK"
-        },
-        "tenantId": {
-            "value": "992574ac-b653-4e8b-b422-f383337f11c1"
+            "value": "dd18Q~FfkkglvI62qtkJgm7SLXLx_tjet8nVMcfI"
         },
         "templateBaseUrl": {
             "value": "https://raw.githubusercontent.com/pabloameijeirascanay/test/main/artifacts/"
