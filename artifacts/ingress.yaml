@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: website-service
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+
+spec:
+  tls:
+    - hosts:
+        - ${FQDN_BACKEND_POOL}
+      secretName: ingress-tls-csi
+  rules:
+  - host: ${FQDN_BACKEND_POOL}
+    http:
+      paths:
+      - path: /
+        backend:
+          service:
+            name: website-service
+            port:
+              number: 8443
+        pathType: Exact

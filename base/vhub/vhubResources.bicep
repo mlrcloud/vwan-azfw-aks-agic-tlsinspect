@@ -2,6 +2,10 @@
 // TODO: verify the required parameters
 
 // Global Parameters
+param spnClientId string
+@secure()
+param spnClientSecret string 
+param tenantId string 
 param location string = resourceGroup().location
 param tags object
 param securityResourceGroupName string
@@ -155,6 +159,9 @@ module fwPolicyResources '../../modules/Microsoft.Network/fwPolicy.bicep' = {
   name: 'fwPolicyResources_Deploy'
   scope: resourceGroup(securityResourceGroupName)
   params: {
+    spnClientId: spnClientId
+    spnClientSecret: spnClientSecret 
+    tenantId: tenantId 
     location: location
     tags: tags
     monitoringResourceGroupName: monitoringResourceGroupName

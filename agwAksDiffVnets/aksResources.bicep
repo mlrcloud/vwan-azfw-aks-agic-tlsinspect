@@ -73,4 +73,3 @@ module websiteCertificateResources '../modules/Microsoft.KeyVault/certificate.bi
     certificateValue: websiteCertificateValue
   }
 }
-

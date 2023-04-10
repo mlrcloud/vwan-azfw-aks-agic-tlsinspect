@@ -2,6 +2,9 @@ targetScope = 'subscription'
 
 // Global Parameters
 
+@description('Random GUID for cluster names')
+param guid string = substring(newGuid(), 0, 4)
+
 @description('Azure region where resource would be deployed')
 param location string
 
@@ -11,7 +14,7 @@ param env string
 param tags object 
 
 
-var deploy = false
+var deploy = true
 // Resource Group Names
 
 @description('Resource Groups names')
@@ -48,11 +51,14 @@ var dnsResolverInboundIp = dnsResolverInfo.inboundEndpointIp
 var dnsResolverOutboundEndpointName = dnsResolverInfo.outboundEndpointName
 var dnsForwardingRulesetsName = dnsResolverInfo.dnsForwardingRulesetsName
 
+@description('Application Azure Private Zone Name')
+param privateDnsZonesName string
+
 //Add in this section the private dns zones you need
 var privateDnsZonesInfo = [
   {
-    name: 'manuelpablo.com'
-    vnetLinkName: 'vnet-link-manuelpablo-to-'
+    name: privateDnsZonesName
+    vnetLinkName: 'vnet-link-website-to-'
     vnetName: sharedVnetInfo.name
   }//Required by Azure Firewall to determine the Web Application’s IP address as HTTP headers usually do not contain IP addresses. 
   {
@@ -65,23 +71,8 @@ var privateDnsZonesInfo = [
 //Add in this section the dns forwarding rules you need 
 var dnsForwardingRulesInfo = [
   {
-    name: 'toOnpremise'
-    domain: 'mydomain.local.'
-    state: 'Enabled'
-    dnsServers:  [
-      {
-          ipAddress: '1.1.1.1'
-          port: 53
-      }
-      {
-          ipAddress: '1.2.3.4'
-          port: 53
-      }
-    ]
-  }
-  {
-    name: 'toManuelPablo'
-    domain: 'manuelpablo.com.'
+    name: 'toWebsite'
+    domain: '${privateDnsZonesName}.'
     state: 'Enabled' //If centrilazedResolverDns=True you should set this to 'Disabled'
     dnsServers: (enableDnsProxy) ? [
       {
@@ -330,9 +321,20 @@ module aksSpokeResources 'aksSpokeResources.bicep' = if (deploy) {
 */
 //Checked
 
+@description('Service principal Id')
+param spnClientId string
+@description('Service principal secret')
+@secure()
+param spnClientSecret string
+@description('Tenant Id')
+param tenantId string
+param customScriptName string = 'custo-script'
+param templateBaseUrl string
+param downloadFile string = 'download.sh'
 param keyVaultConfiguration object
 
-var keyVaultName = keyVaultConfiguration.name
+
+var keyVaultName = '${keyVaultConfiguration.name}-${guid}'
 var keyVaultAccessPolicies = keyVaultConfiguration.accessPolicies
 var keyVaultEnabledForDeployment = keyVaultConfiguration.enabledForDeployment
 var keyVaultEnabledForDiskEncryption = keyVaultConfiguration.enabledForDiskEncryption 
@@ -357,6 +359,17 @@ module mngmntResources '../base/mngmnt/mngmntResources.bicep' = if (deploy) {
     sharedResources
   ]
   params: {
+    fqdnBackendPool: fqdnBackendPool
+    downloadFile: downloadFile
+    customScriptName: customScriptName
+    spnClientId: spnClientId
+    templateBaseUrl: templateBaseUrl
+    spnClientSecret: spnClientSecret
+    tenantId: tenantId
+    aksName: aksName
+    certName: websiteCertificateName
+    aksResourceGroupName: aksResourceGroupName
+    dnsPrivateZoneResourceGroupName: sharedResourceGroupName
     location:location
     tags: tags
     vnetInfo: mngmntVnetInfo 
@@ -370,6 +383,7 @@ module mngmntResources '../base/mngmnt/mngmntResources.bicep' = if (deploy) {
     vmSize: vmMngmntSize
     vmAdminUsername: vmMngmntAdminUsername
     vmAdminPassword: vmMngmntAdminPassword
+    privateDnsZonesName: privateDnsZonesName
     keyVaultName: keyVaultName
     keyVaultAccessPolicies: keyVaultAccessPolicies
     keyVaultEnabledForDeployment: keyVaultEnabledForDeployment
@@ -411,6 +425,9 @@ module vhubResources '../base/vhub/vhubResources.bicep' = if (deploy) {
     mngmntResources
   ]
   params: {
+    spnClientId: spnClientId
+    spnClientSecret: spnClientSecret
+    tenantId: tenantId
     location:location
     tags: tags
     securityResourceGroupName: securityResourceGroupName
@@ -465,7 +482,6 @@ var aksEnableSecretStoreCSIDriver = aksConfiguration.enableSecretStoreCSIDriver
 var aksServiceCidr = aksConfiguration.serviceCidr
 var aksDnsServiceIp = aksConfiguration.dnsServiceIp
 var aksUpgradeChannel = aksConfiguration.upgradeChannel
-
 
 module aksResources 'aksResources.bicep' = {
   scope: aksResourceGroup

@@ -1,5 +1,3 @@
-
-
 param name string 
 param principalId string
 param roleDefinitionId string
