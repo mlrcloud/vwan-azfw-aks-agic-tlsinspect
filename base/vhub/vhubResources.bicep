@@ -126,7 +126,7 @@ module fwRootCACerificateResources '../../modules/Microsoft.KeyVault/certificate
   }
 }
 
-module fwIdentityKeyVaultAccessPolicy '../../modules/Microsoft.KeyVault/accessPolicies.bicep' = {
+module fwIdentityKeyVaultAccessPolicyResources '../../modules/Microsoft.KeyVault/accessPolicies.bicep' = {
   name: 'fwIdentityKeyVaultAccessPolicyResources_Deploy'
   scope: resourceGroup(mngmntResourceGroupName)
   params: {
@@ -176,7 +176,7 @@ module fwPolicyResources '../../modules/Microsoft.Network/fwPolicy.bicep' = {
     fwIdentityResources
     fwInterCACertificateResources
     fwRootCACerificateResources
-    fwIdentityKeyVaultAccessPolicy
+    fwIdentityKeyVaultAccessPolicyResources
   ]
 }
 

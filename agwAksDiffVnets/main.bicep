@@ -137,7 +137,7 @@ var vnetsInfo = {
     }
     snets: [
       {
-        name: 'snet-vmMngmt'
+        name: 'snet-vmMngmnt'
         range: '10.0.1.0/26'
         delegations: ''
         routeTable: {
