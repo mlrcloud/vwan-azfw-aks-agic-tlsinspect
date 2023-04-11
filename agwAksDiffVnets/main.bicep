@@ -328,19 +328,18 @@ var downloadFile = 'download.sh'
 @description('Random GUID for cluster names')
 param guid string = substring(newGuid(), 0, 4)
 var keyVaultName = 'kv-agw-fw-aks-tls-c155' //'kv-agw-fw-aks-tls-${guid}'
-/* TOREVIEW: //Evaluate whether delete this or inclue sp id
+
 var keyVaultAccessPolicies = {
-  objectId: '21ac6ecc-7bdb-4f26-bbba-b5c18c24a182'
+  objectId: spnClientId
   permissions: {
-    certificates: []
-    keys: []
-    secrets: [
-      'Get'
-      'List'
+    certificates: [
+      'import'
     ]
+    keys: []
+    secrets: []
   }
 }
-*/
+
 var keyVaultEnabledForDeployment = false
 var keyVaultEnabledForDiskEncryption = false
 var keyVaultEnabledForTemplateDeployment = true
@@ -406,7 +405,7 @@ module mngmntResources '../base/mngmnt/mngmntResources.bicep' = if (deploy) {
     vmAdminPassword: vmMngmntAdminPassword
     websitePrivateDnsZonesName: websitePrivateDnsZonesName
     keyVaultName: keyVaultName
-    //keyVaultAccessPolicies: keyVaultAccessPolicies TOREVIEW: Evaluate whether delete this or inclue sp id
+    keyVaultAccessPolicies: keyVaultAccessPolicies
     keyVaultEnabledForDeployment: keyVaultEnabledForDeployment
     keyVaultEnabledForDiskEncryption: keyVaultEnabledForDiskEncryption
     keyVaultEnabledForTemplateDeployment: keyVaultEnabledForTemplateDeployment

@@ -27,7 +27,7 @@ param websitePrivateDnsZonesName string
 param aksName string
 param certName string
 param keyVaultName string
-//param keyVaultAccessPolicies object TOREVIEW: probably we don't need this
+param keyVaultAccessPolicies object 
 param keyVaultEnabledForDeployment bool
 param keyVaultEnabledForDiskEncryption bool
 param keyVaultEnabledForTemplateDeployment bool
@@ -137,7 +137,7 @@ module keyVaultResources '../../modules/Microsoft.KeyVault/vaults.bicep' = {
     location: location
     tags: tags
     name: keyVaultName
-    //accessPolicies: keyVaultAccessPolicies TOREVIEW: probably we don't need this
+    accessPolicies: keyVaultAccessPolicies 
     enabledForDeployment: keyVaultEnabledForDeployment
     enabledForDiskEncryption: keyVaultEnabledForDiskEncryption
     enabledForTemplateDeployment: keyVaultEnabledForTemplateDeployment
