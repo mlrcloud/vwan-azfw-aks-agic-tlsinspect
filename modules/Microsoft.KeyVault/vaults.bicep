@@ -24,7 +24,7 @@ resource vaults 'Microsoft.KeyVault/vaults@2022-07-01' = {
   location: location
   tags: tags
   properties: {
-    //accessPolicies: array(union(accessPolicies, tenantId)) TOREVIEW: probably we don't need this
+    accessPolicies: []//array(union(accessPolicies, tenantId)) TOREVIEW: probably we don't need this
     enabledForDeployment: enabledForDeployment
     enabledForDiskEncryption: enabledForDiskEncryption
     enabledForTemplateDeployment: enabledForTemplateDeployment

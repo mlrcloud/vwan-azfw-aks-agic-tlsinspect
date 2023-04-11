@@ -38,6 +38,8 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2022-07-01' = {
       {
         name: 'ipConfig'
         properties: {
+          groupId: groupIds
+          memberName: 'default'
           privateIPAddress: privateIPAddress
         }
       }

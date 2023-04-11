@@ -45,7 +45,7 @@ module dnsResolverInboundEndpointsResources '../../modules/Microsoft.Network/dns
     name: dnsResolverInboundEndpointName 
     dnsResolverName: dnsResolverName
     resolverVnetName: vnetInfo.name
-    inboundEndpointSubnetName: vnetInfo.subnets[0].name
+    inboundEndpointSubnetName: snetsInfo[0].name
   }
 }
 
@@ -60,7 +60,7 @@ module dnsResolverOutboundEndpointsResources '../../modules/Microsoft.Network/dn
     name: dnsResolverOutboundEndpointName 
     dnsResolverName: dnsResolverName
     resolverVnetName: vnetInfo.name
-    outboundEndpointSubnetName: vnetInfo.subnets[1].name
+    outboundEndpointSubnetName: snetsInfo[1].name
   }
 }
 

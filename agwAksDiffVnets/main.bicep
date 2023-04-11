@@ -327,7 +327,7 @@ var downloadFile = 'download.sh'
 
 @description('Random GUID for cluster names')
 param guid string = substring(newGuid(), 0, 4)
-var keyVaultName = 'kv-agw-fw-aks-tls-${guid}'
+var keyVaultName = 'kv-agw-fw-aks-tls-c155' //'kv-agw-fw-aks-tls-${guid}'
 /* TOREVIEW: //Evaluate whether delete this or inclue sp id
 var keyVaultAccessPolicies = {
   objectId: '21ac6ecc-7bdb-4f26-bbba-b5c18c24a182'
@@ -356,7 +356,7 @@ var keyVaultPublicNetworkAccess = 'Disabled'
 var keyVaultSku = 'standard' 
 var keyVaultSoftDeleteRetentionInDays = 7
 var keyVaultPrivateEndpointName = 'kv-pe'
-var keyVaultPrivateEndpointIp = '10.0.4.68'
+var keyVaultPrivateEndpointIp = '10.0.1.68'
 
 
 var vmMngmntName = 'vm-mngmnt'
@@ -486,10 +486,10 @@ var networkRulesInfo = {
         {
           ruleType: 'NetworkRule'
           sourceAddresses: [
-            '10.0.2.0/24'
+            vnetsInfo.agw.vnet.range
           ]
           destinationAddresses: [
-            '10.0.4.68'
+            keyVaultPrivateEndpointIp
           ]
           destinationPorts: [
             '443'
@@ -502,7 +502,7 @@ var networkRulesInfo = {
         {
           ruleType: 'NetworkRule'
           sourceAddresses: [
-            '10.0.1.0/24'
+            vnetsInfo.mngmnt.vnet.range
           ]
           destinationAddresses: [
             '*'
@@ -513,15 +513,15 @@ var networkRulesInfo = {
           ipProtocols: [
             'Any'
           ]
-          name: 'All-Traffic-Allowed-VM'
+          name: 'All-Traffic-Allowed-vmMngmnt'
         }
         {
           ruleType: 'NetworkRule'
           sourceAddresses: [
-            '10.0.4.0/23'
+            vnetsInfo.aks.vnet.range
           ]
           destinationAddresses: [
-            ''
+            '*'
           ]
           destinationPorts: [
             '*'
@@ -529,7 +529,7 @@ var networkRulesInfo = {
           ipProtocols: [
             'Any'
           ]
-          name: 'All-Traffic-Allowed-VM'
+          name: 'All-Traffic-Allowed-AKS'
         }
       ]
     }
