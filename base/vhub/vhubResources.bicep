@@ -23,6 +23,10 @@ param keyVaultName string
 param fwInterCACertificateValue string
 @secure()
 param fwRootCACertificateValue string
+@secure()
+param fwInterCACertificatePassword string
+@secure()
+param fwRootCACertificatePassword string
 param fwPolicyInfo object 
 param appRuleCollectionGroupName string
 param appRulesInfo object 
@@ -103,7 +107,7 @@ module fwIdentityResources '../../modules/Microsoft.Authorization/userAssignedId
     tags: tags
   }
 }
-
+/*
 module fwInterCACertificateResources '../../modules/Microsoft.KeyVault/certificate.bicep' = {
   name: 'fwInterCACertificateResources_Deploy'
   scope: resourceGroup(mngmntResourceGroupName)
@@ -123,6 +127,37 @@ module fwRootCACerificateResources '../../modules/Microsoft.KeyVault/certificate
     name: fwRootCACertificateName
     keyVaulName: keyVaultName
     certificateValue: fwRootCACertificateValue
+  }
+}
+*/
+
+module fwInterCACertificateResources '../../modules/Microsoft.Resources/deploymentScript.bicep' = {
+  name: 'fwInterCACertificateResources_Deploy'
+  scope: resourceGroup(mngmntResourceGroupName)
+  params: {
+    location: location
+    tags: tags
+    name: fwInterCACertificateName
+    spnClientId: spnClientId
+    spnClientSecret: spnClientSecret
+    keyVaulName: keyVaultName
+    certificateValue: fwInterCACertificateValue
+    password: fwInterCACertificatePassword
+  }
+}
+
+module fwRootCACertificateResources '../../modules/Microsoft.Resources/deploymentScript.bicep' = {
+  name: 'fwRootCACertificateResources_Deploy'
+  scope: resourceGroup(mngmntResourceGroupName)
+  params: {
+    location: location
+    tags: tags
+    name: fwRootCACertificateName
+    spnClientId: spnClientId
+    spnClientSecret: spnClientSecret
+    keyVaulName: keyVaultName
+    certificateValue: fwRootCACertificateValue
+    password: fwRootCACertificatePassword
   }
 }
 
@@ -175,7 +210,7 @@ module fwPolicyResources '../../modules/Microsoft.Network/fwPolicy.bicep' = {
   dependsOn: [
     fwIdentityResources
     fwInterCACertificateResources
-    fwRootCACerificateResources
+    fwRootCACertificateResources
     fwIdentityKeyVaultAccessPolicyResources
   ]
 }

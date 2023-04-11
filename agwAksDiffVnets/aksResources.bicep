@@ -22,6 +22,11 @@ param websiteCertificateName string
 param keyVaultName string
 @secure()
 param websiteCertificateValue string
+param spnClientId string
+@secure()
+param spnClientSecret string
+@secure()
+param websiteCertificatePassword string
 
 module aksCluster '../modules/Microsoft.ContainerService/managedClusters.bicep' = {
   name: 'aksClusterResources_Deploy'
@@ -63,6 +68,7 @@ module aksSnetRoleAssignmentResources '../modules/Microsoft.Authorization/aksRol
   ]
 }
 
+/*
 module websiteCertificateResources '../modules/Microsoft.KeyVault/certificate.bicep' = {
   name: 'websiteCertificateResources_Deploy'
   scope: resourceGroup(mngmntResourceGroupName)
@@ -73,3 +79,20 @@ module websiteCertificateResources '../modules/Microsoft.KeyVault/certificate.bi
     certificateValue: websiteCertificateValue
   }
 }
+*/
+
+module websiteCertificateResources '../modules/Microsoft.Resources/deploymentScript.bicep' = {
+  name: 'websiteCertificateResources_Deploy'
+  scope: resourceGroup(mngmntResourceGroupName)
+  params: {
+    location: location
+    tags: tags
+    name: websiteCertificateName
+    spnClientId: spnClientId
+    spnClientSecret: spnClientSecret
+    keyVaulName: keyVaultName
+    certificateValue: websiteCertificateValue
+    password: websiteCertificatePassword
+  }
+}
+
