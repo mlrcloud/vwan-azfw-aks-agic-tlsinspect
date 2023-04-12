@@ -8,6 +8,9 @@
         "vmMngmntAdminPassword": {
             "value": "Pa$$word1!"
         },
+        "spnObjectId":{
+            "value": "8147ca7b-06bb-4668-b58e-a14494650021"
+        },
         "spnClientId": {
             "value": "738094dc-7bce-4c90-b1c2-1ab73e34cb2f"
         },
