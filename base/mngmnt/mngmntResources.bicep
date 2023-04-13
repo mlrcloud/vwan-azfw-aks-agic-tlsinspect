@@ -42,6 +42,8 @@ param keyVaultPrivateEndpointIp string
 param keyVaultPrivateDnsZoneName string
 param downloadFile string
 param fqdnBackendPool string
+param agwResourceGroupName string
+param agwName string
 var keyVaultNameResourceGroupName = resourceGroup().name
 
 
@@ -127,7 +129,7 @@ module vmCustomScriptResources '../../modules/Microsoft.Compute/customScript.bic
     name: customScriptName
     location: location
     templateBaseUrl: templateBaseUrl
-    commandToExecute: 'bash download.sh ${vmAdminUsername} ${spnClientId} ${spnClientSecret} ${tenant().tenantId} ${aksResourceGroupName} ${location} ${websitePrivateDnsZonesName} ${aksName} ${keyVaultName} ${certName} ${dnsPrivateZoneResourceGroupName} ${templateBaseUrl} ${keyVaultNameResourceGroupName} ${fqdnBackendPool}'
+    commandToExecute: 'bash download.sh ${vmAdminUsername} ${spnClientId} ${spnClientSecret} ${tenant().tenantId} ${aksResourceGroupName} ${location} ${websitePrivateDnsZonesName} ${aksName} ${keyVaultName} ${certName} ${dnsPrivateZoneResourceGroupName} ${templateBaseUrl} ${keyVaultNameResourceGroupName} ${fqdnBackendPool} ${agwResourceGroupName} ${agwName}'
   }
 }
 

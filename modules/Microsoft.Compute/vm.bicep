@@ -23,9 +23,9 @@ resource vm 'Microsoft.Compute/virtualMachines@2021-04-01' = {
     }
     storageProfile: {
       imageReference: {
-        publisher: 'canonical'
-        offer: '0001-com-ubuntu-minimal-focal'
-        sku: 'minimal-20_04-lts-gen2'
+        publisher: 'Canonical'
+        offer: 'UbuntuServer'
+        sku: '18_04-lts-gen2'
         version: 'latest'
       }
       osDisk: {

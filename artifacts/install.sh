@@ -87,6 +87,14 @@ envsubst < secret-provider-class.yaml | kubectl apply -f -
 
 echo ""
 echo "######################################################################################"
+echo "## Disabling public access in Azure Key Vault...                                    ##" 
+echo "######################################################################################"
+echo ""
+
+az keyvault update --name $AKV_NAME --public-network-access Disabled
+
+echo ""
+echo "######################################################################################"
 echo "## Create the application...                                                        ##" 
 echo "######################################################################################"
 echo ""
@@ -107,3 +115,15 @@ done
 
 # Create the ingress
 envsubst < ingress.yaml | kubectl apply -f -
+
+echo ""
+echo "######################################################################################"
+echo "## Restarting Application Gateway...                                                ##" 
+echo "######################################################################################"
+echo ""
+
+# Stop the Azure Application Gateway
+az network application-gateway stop -n $APPGW_NAME -g $APPGW_RESOURCE_GROUP_NAME
+
+# Start the Azure Application Gateway
+az network application-gateway start -n $APPGW_NAME -g $APPGW_RESOURCE_GROUP_NAME
