@@ -146,7 +146,7 @@ var vnetsInfo = {
             {
               name: 'fromVmMangmntToKvPe'
               properties: {
-                addressPrefix: '10.0.6.68/32'
+                addressPrefix: '10.0.1.68/32'
                 nextHopType: 'VirtualAppliance'
                 nextHopIpAddress: '10.0.0.132'
               }
@@ -329,7 +329,7 @@ var downloadFile = 'download.sh'
 
 @description('Random GUID for cluster names')
 param guid string = substring(newGuid(), 0, 4)
-var keyVaultName = 'kv-agw-fw-aks-tls-c155' //'kv-agw-fw-aks-tls-${guid}'
+var keyVaultName = 'kv-agw-fw-aks-tls-${guid}' //'kv-agw-fw-aks-tls-${guid}'
 
 var keyVaultAccessPolicies = {
   objectId: spnObjectId
@@ -422,6 +422,8 @@ module mngmntResources '../base/mngmnt/mngmntResources.bicep' = if (deploy) {
     keyVaultPrivateDnsZoneName: privateDnsZonesInfo[1].name
     keyVaultPrivateEndpointName: keyVaultPrivateEndpointName
     keyVaultPrivateEndpointIp: keyVaultPrivateEndpointIp
+    agwResourceGroupName: agwResourceGroupName
+    agwName: agwName
   }
 }
 

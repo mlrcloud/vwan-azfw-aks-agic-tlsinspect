@@ -20,6 +20,8 @@ echo $DNS_PRIVATE_ZONE_RESOURCE_GROUP_NAME:${11} | awk '{print substr($1,2); }' 
 echo $TEMPLATE_BASE_URL:${12} | awk '{print substr($1,2); }' >> vars.sh
 echo $AKV_RESOURCE_GROUP_NAME:${13} | awk '{print substr($1,2); }' >> vars.sh 
 echo $FQDN_BACKEND_POOL:${14} | awk '{print substr($1,2); }' >> vars.sh 
+echo $APPGW_NAME:${15} | awk '{print substr($1,2); }' >> vars.sh
+echo $APPGW_RESOURCE_GROUP_NAME:${16} | awk '{print substr($1,2); }' >> vars.sh
 
 sed -i '2s/^/export ADMIN_USER_NAME=/' vars.sh
 sed -i '3s/^/export SPN_CLIENT_ID=/' vars.sh
@@ -35,6 +37,8 @@ sed -i '12s/^/export DNS_PRIVATE_ZONE_RESOURCE_GROUP_NAME=/' vars.sh
 sed -i '13s/^/export TEMPLATE_BASE_URL=/' vars.sh
 sed -i '14s/^/export AKV_RESOURCE_GROUP_NAME=/' vars.sh
 sed -i '15s/^/export FQDN_BACKEND_POOL=/' vars.sh
+sed -i '16s/^/export APPGW_NAME=/' vars.sh
+sed -i '17s/^/export APPGW_RESOURCE_GROUP_NAME=/' vars.sh
 
 chmod +x vars.sh
 . ./vars.sh
