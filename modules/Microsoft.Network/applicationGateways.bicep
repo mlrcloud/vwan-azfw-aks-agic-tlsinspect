@@ -130,6 +130,9 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2021-08-01' =
           protocol: 'Https'
           cookieBasedAffinity: 'Disabled'
           requestTimeout: 20
+          probe: {
+            id: '${applicationGatewayId}/probes/customProbe'
+          }
           trustedRootCertificates: [
             {
               id: '${applicationGatewayId}/trustedRootCertificates/azfwRootCA'//resourceId('Microsoft.Network/applicationGateways/', '${agwName}','/trustedRootCertificates/backendSettings0e50b009-6a1a-4cba-83c7-5d8d1ad6803d')
@@ -187,7 +190,22 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2021-08-01' =
         }
       }
     ]
-    probes: []
+    probes: [
+      {
+        name: 'customProbe'
+        properties: {
+          protocol: 'Https'
+          host: fqdnBackendPool
+          path: '/'
+          interval: 30
+          timeout: 30
+          unhealthyThreshold: 3
+          pickHostNameFromBackendHttpSettings: false
+          minServers: 0
+          match: {}
+        }
+      }
+    ]
     autoscaleConfiguration: {
       minCapacity: capacity
       maxCapacity: autoScaleMaxCapacity

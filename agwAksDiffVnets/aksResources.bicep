@@ -68,19 +68,6 @@ module aksSnetRoleAssignmentResources '../modules/Microsoft.Authorization/aksRol
   ]
 }
 
-/*
-module websiteCertificateResources '../modules/Microsoft.KeyVault/certificate.bicep' = {
-  name: 'websiteCertificateResources_Deploy'
-  scope: resourceGroup(mngmntResourceGroupName)
-  params: {
-    tags: tags
-    name: websiteCertificateName
-    keyVaulName: keyVaultName
-    certificateValue: websiteCertificateValue
-  }
-}
-*/
-
 module websiteCertificateResources '../modules/Microsoft.Resources/deploymentScript.bicep' = {
   name: 'websiteCertificateResources_Deploy'
   scope: resourceGroup(mngmntResourceGroupName)

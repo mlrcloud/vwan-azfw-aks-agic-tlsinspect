@@ -473,10 +473,29 @@ var appRulesInfo = {
           }
           name: 'AksFwWeRuleCollection'
           priority: 100
-          rules: []
+          rules: [
+            {
+              ruleType: 'ApplicationRule'
+              protocols: [
+                {
+                    protocolType: 'Https'
+                    port: 443
+                }
+              ]
+              targetFqdns: [
+                  fqdnBackendPool
+              ]
+              terminateTLS: true
+              sourceAddresses: [
+                vnetsInfo.agw.vnet.range
+              ]
+              name: 'fromAgwToIngressController'
+            }
+          ]
       }
   ]
 }
+
 var networkRuleCollectionGroupName = 'fwnetrulegroup'
 var networkRulesInfo = {
   priority: 200
@@ -537,6 +556,24 @@ var networkRulesInfo = {
           ]
           name: 'All-Traffic-Allowed-AKS'
         }
+        /* //Scenario: disable app rule, because fw will not act as web proxy so no TLS inspection will be performed
+        {
+          ruleType: 'NetworkRule'
+          sourceAddresses: [
+            vnetsInfo.agw.vnet.range
+          ]
+          destinationAddresses: [
+            vnetsInfo.aks.vnet.range
+          ]
+          destinationPorts: [
+            '*'
+          ]
+          ipProtocols: [
+            'Any'
+          ]
+          name: 'All-Traffic-Allowed-AKS'
+        }
+        */
       ]
     }
   ]

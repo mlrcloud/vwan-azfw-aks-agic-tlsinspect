@@ -107,29 +107,6 @@ module fwIdentityResources '../../modules/Microsoft.Authorization/userAssignedId
     tags: tags
   }
 }
-/*
-module fwInterCACertificateResources '../../modules/Microsoft.KeyVault/certificate.bicep' = {
-  name: 'fwInterCACertificateResources_Deploy'
-  scope: resourceGroup(mngmntResourceGroupName)
-  params: {
-    tags: tags
-    name: fwInterCACertificateName
-    keyVaulName: keyVaultName
-    certificateValue: fwInterCACertificateValue
-  }
-}
-
-module fwRootCACerificateResources '../../modules/Microsoft.KeyVault/certificate.bicep' = {
-  name: 'fwRootCACertificateResources_Deploy'
-  scope: resourceGroup(mngmntResourceGroupName)
-  params: {
-    tags: tags
-    name: fwRootCACertificateName
-    keyVaulName: keyVaultName
-    certificateValue: fwRootCACertificateValue
-  }
-}
-*/
 
 module fwInterCACertificateResources '../../modules/Microsoft.Resources/deploymentScript.bicep' = {
   name: 'fwInterCACertificateResources_Deploy'
@@ -169,18 +146,13 @@ module fwIdentityKeyVaultAccessPolicyResources '../../modules/Microsoft.KeyVault
     keyVaultName: keyVaultName
     objectId: fwIdentityResources.outputs.principalId
     permissions: {
-      certificates: [
+      certificates: [//TOREVIEW: check if this is the correct permission
         'list'
         'get'
       ]
       secrets: [
-        'backup'
-        'delete'
         'get'
         'list'
-        'recover'
-        'restore'
-        'set'
       ]
     }
   }
@@ -193,8 +165,6 @@ module fwPolicyResources '../../modules/Microsoft.Network/fwPolicy.bicep' = {
   name: 'fwPolicyResources_Deploy'
   scope: resourceGroup(securityResourceGroupName)
   params: {
-    spnClientId: spnClientId
-    spnClientSecret: spnClientSecret
     location: location
     tags: tags
     monitoringResourceGroupName: monitoringResourceGroupName
