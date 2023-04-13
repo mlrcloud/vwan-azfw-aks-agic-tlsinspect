@@ -146,7 +146,7 @@ var vnetsInfo = {
             {
               name: 'fromVmMangmntToKvPe'
               properties: {
-                addressPrefix: '10.0.6.68/32'
+                addressPrefix: '10.0.1.68/32'
                 nextHopType: 'VirtualAppliance'
                 nextHopIpAddress: '10.0.0.132'
               }
@@ -556,7 +556,15 @@ var networkRulesInfo = {
           ]
           name: 'All-Traffic-Allowed-AKS'
         }
-        /* //Scenario: disable app rule, because fw will not act as web proxy so no TLS inspection will be performed
+        //Scenario agw + azfw network rules: disable app rule, because fw will not act as web proxy so no TLS inspection will be performed. 
+        // AGW Default Probe doesn't work because it uses protocol//localhost:ports for health check so the responde code is 404 and only 200-399 code are allowed.
+        
+        //Scenario agw +azfw app rules: enable app rule, because fw will act as web proxy so TLS inspection will be performed.
+        // AGW Default Probe doesn't work because SNI doesn't work. "If a custom probe isn't configured, then Application Gateway sends a default probe in this format - <protocol>://127.0.0.1:<port>/. 
+        //For example, for a default HTTPS probe, it will be sent as https://127.0.0.1:443/. 
+        //Note that, the 127.0.0.1 mentioned here is only used as HTTP host header and as per RFC 6066, won't be used as SNI header."
+        //url: https://learn.microsoft.com/en-us/azure/application-gateway/ssl-overview#for-probe-traffic
+        /* 
         {
           ruleType: 'NetworkRule'
           sourceAddresses: [
