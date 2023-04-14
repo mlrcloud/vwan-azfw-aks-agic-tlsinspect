@@ -129,7 +129,7 @@ module vmCustomScriptResources '../../modules/Microsoft.Compute/customScript.bic
     name: customScriptName
     location: location
     templateBaseUrl: templateBaseUrl
-    commandToExecute: 'bash download.sh ${vmAdminUsername} ${spnClientId} ${spnClientSecret} ${tenant().tenantId} ${aksResourceGroupName} ${location} ${websitePrivateDnsZonesName} ${aksName} ${keyVaultName} ${certName} ${dnsPrivateZoneResourceGroupName} ${templateBaseUrl} ${keyVaultNameResourceGroupName} ${fqdnBackendPool} ${agwResourceGroupName} ${agwName}'
+    commandToExecute: 'bash download.sh ${vmAdminUsername} ${spnClientId} ${spnClientSecret} ${tenant().tenantId} ${aksResourceGroupName} ${location} ${websitePrivateDnsZonesName} ${aksName} ${keyVaultName} ${certName} ${dnsPrivateZoneResourceGroupName} ${templateBaseUrl} ${keyVaultNameResourceGroupName} ${fqdnBackendPool} ${agwName} ${agwResourceGroupName}'
   }
 }
 

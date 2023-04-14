@@ -24,6 +24,7 @@ spec:
       labels:
         app: website
     spec:
+      serviceAccountName: workload-identity-sa
       containers:
         - name: website
           imagePullPolicy: Always
@@ -33,6 +34,7 @@ spec:
           volumeMounts:
           - mountPath: /etc/nginx/ssl
             name: secrets-store-inline
+            readOnly: true
           - mountPath: /etc/nginx/conf.d
             name: configmap-volume-1
           - mountPath: /usr/share/nginx/html/index.html
