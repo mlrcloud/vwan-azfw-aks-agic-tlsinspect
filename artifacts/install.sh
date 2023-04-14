@@ -1,6 +1,10 @@
 #!/bin/bash
 sudo apt-get update
 
+# restart the networking service
+sudo systemctl restart systemd-networkd
+sleep 10
+
 # Export variables
 export KUBECTL_VERSION="1.24/stable"
 
@@ -26,6 +30,14 @@ sudo mv envsubst /usr/local/bin
 
 # Get access credentials for a managed Kubernetes cluster
 az aks get-credentials --name $AKS_NAME --resource-group $AKS_RESOURCE_GROUP_NAME
+
+echo ""
+echo "######################################################################################"
+echo "## Disabling public access in Azure Key Vault...                                    ##" 
+echo "######################################################################################"
+echo ""
+
+az keyvault update --name $AKV_NAME --public-network-access Disabled
 
 # Install Nginx Ingress Controller
 echo ""
@@ -73,25 +85,62 @@ envsubst < external-dns.yaml | kubectl apply -f -
 
 echo ""
 echo "######################################################################################"
+echo "## Configure workload identity...                                                   ##" 
+echo "######################################################################################"
+echo ""
+
+# Install the aks-preview extension
+az extension add --name aks-preview
+
+# Register the 'EnableWorkloadIdentityPreview' feature
+az feature register --namespace "Microsoft.ContainerService" --name "EnableWorkloadIdentityPreview"
+
+# Don't continue until ingress controller EXTERNAL-IP exists
+until [[ $FEATURE == "Registered" ]]; do
+  FEATURE=$(az feature show --namespace "Microsoft.ContainerService" --name "EnableWorkloadIdentityPreview" --query properties.state -o tsv)
+  echo "Waiting for EnableWorkloadIdentityPreview feature registration, hold tight...(5s sleeping loop)"
+  sleep 5
+done
+
+# Enable OIDC and Workload Identity
+az aks update -g $AKS_RESOURCE_GROUP_NAME -n $AKS_NAME --enable-oidc-issuer --enable-workload-identity
+
+# create a managed identity
+export CLIENT_ID="$(az identity create --name workload-identity --resource-group $AKS_RESOURCE_GROUP_NAME --query 'clientId' -o tsv)"
+
+# Get the AKS cluster OIDC issuer URL
+export AKS_OIDC_ISSUER="$(az aks show --resource-group $AKS_RESOURCE_GROUP_NAME --name $AKS_NAME --query "oidcIssuerProfile.issuerUrl" -o tsv)"
+
+# Create the service account
+export serviceAccountName="workload-identity-sa"
+export serviceAccountNamespace="default" # can be changed to namespace of your workload, in this case is default
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    azure.workload.identity/client-id: ${CLIENT_ID}
+  labels:
+    azure.workload.identity/use: "true"
+  name: ${serviceAccountName}
+  namespace: ${serviceAccountNamespace}
+EOF
+
+# Create the federated identity credential between the Managed Identity, the service account issuer, and the subject
+az identity federated-credential create --name aksfederatedidentity --identity-name workload-identity --resource-group $AKS_RESOURCE_GROUP_NAME --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${serviceAccountNamespace}:${serviceAccountName}
+
+echo ""
+echo "######################################################################################"
 echo "## Use the Azure Key Vault Provider for Secrets Store CSI Driver...                 ##" 
 echo "######################################################################################"
 echo ""
-export PRINCIPAL_ID=$(az aks show --name $AKS_NAME --resource-group $AKS_RESOURCE_GROUP_NAME --query addonProfiles.azureKeyvaultSecretsProvider.identity.objectId -o tsv)
 
 # set policy to access certs in your key vault
+export PRINCIPAL_ID=$(az identity show -g $AKS_RESOURCE_GROUP_NAME --name workload-identity --query 'principalId' -o tsv)
 az keyvault set-policy -n $AKV_NAME --secret-permissions get --object-id $PRINCIPAL_ID
 
 # Deploy a SecretProviderClass
-export CLIENT_ID=$(az aks show --name $AKS_NAME --resource-group $AKS_RESOURCE_GROUP_NAME --query addonProfiles.azureKeyvaultSecretsProvider.identity.clientId -o tsv)
 envsubst < secret-provider-class.yaml | kubectl apply -f -
-
-echo ""
-echo "######################################################################################"
-echo "## Disabling public access in Azure Key Vault...                                    ##" 
-echo "######################################################################################"
-echo ""
-
-az keyvault update --name $AKV_NAME --public-network-access Disabled
 
 echo ""
 echo "######################################################################################"
