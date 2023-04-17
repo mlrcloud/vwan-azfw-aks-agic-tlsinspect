@@ -32,10 +32,9 @@ var mngmntResourceGroupName = 'rg-mngmnt'
 */
 
 @description('Monitoring options')
-param monitoringOptions object
 
-var deployLogWorkspace = monitoringOptions.deployLogAnalyticsWorkspace
-var existingLogWorkspaceName = monitoringOptions.existingLogAnalyticsWorkspaceName
+var deployLogWorkspace = true
+var existingLogWorkspaceName = ''
 
 resource monitoringResourceGroup 'Microsoft.Resources/resourceGroups@2021-01-01' = if (deploy) {
   name: monitoringResourceGroupName

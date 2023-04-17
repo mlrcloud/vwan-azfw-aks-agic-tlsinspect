@@ -14,12 +14,6 @@
         "location": {
             "value": "westeurope"
         },
-        "monitoringOptions": {
-            "value": {
-                "deployLogAnalyticsWorkspace": true,
-                "existingLogAnalyticsWorkspaceName": ""
-            }
-        },
         "agwConfiguration": {
             "value": {
                 "fqdnBackendPool": "www.manuelpablo.com",
