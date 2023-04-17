@@ -6,7 +6,10 @@ targetScope = 'subscription'
 param location string
 
 @description('Tags associated with all resources')
-param tags object 
+param tags object = {
+  project: 'tls-inspection'
+  environment: 'demo'
+}
 
 
 var deploy = true //Only for testing purspose
@@ -316,14 +319,14 @@ module aksSpokeResources 'aksSpokeResources.bicep' = if (deploy) {
 param centrilazedResolverDnsOnMngmntVnet bool = true
 
 @description('Service principal Object Id')
-param spnObjectId string
+param spnObjectId string = '8147ca7b-06bb-4668-b58e-a14494650021'
 @description('Service principal Id')
-param spnClientId string
+param spnClientId string = '738094dc-7bce-4c90-b1c2-1ab73e34cb2f'
 @description('Service principal secret')
 @secure()
-param spnClientSecret string
+param spnClientSecret string = 'MW18Q~axfctVM_-DXRoWnWLD87v3fJ66Z7RObbF3'
 var customScriptName = 'custo-script'
-param templateBaseUrl string
+param templateBaseUrl string = 'https://raw.githubusercontent.com/pabloameijeirascanay/test/main/artifacts/' //TOREVIEW: Change this after change repo visibility
 var downloadFile = 'download.sh'
 
 
@@ -370,7 +373,7 @@ var vmMngmntAdminUsername = 'azureAdmin'
 
 @description('Admin password for Mngmnt vm')
 @secure()
-param vmMngmntAdminPassword string
+param vmMngmntAdminPassword string = 'Pa$$word1!'
 
 resource mngmntResourceGroup 'Microsoft.Resources/resourceGroups@2021-01-01' = if (deploy) {
   name: mngmntResourceGroupName
