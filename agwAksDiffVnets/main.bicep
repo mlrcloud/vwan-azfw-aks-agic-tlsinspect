@@ -322,7 +322,7 @@ param spnClientId string
 @secure()
 param spnClientSecret string
 var customScriptName = 'custo-script'
-param templateBaseUrl string = 'https://raw.githubusercontent.com/pabloameijeirascanay/test/main/artifacts/' //TOREVIEW: Change this after change repo visibility
+param templateBaseUrl string = 'https://raw.githubusercontent.com/mlrcloud/vwan-azfw-aks-agic-tlsinspect/main/artifacts/'
 var downloadFile = 'download.sh'
 
 

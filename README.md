@@ -513,7 +513,6 @@ Occasionally, you may need to review log output from scripts that run on the Azu
 | Logfile | Description |
 | ------- | ----------- |
 | _$HOME/download.log_ | Output from the initial dowload script that runs on Azure Linux Virtual Machine Management. |
-||
 
 ### Cleanup
 
