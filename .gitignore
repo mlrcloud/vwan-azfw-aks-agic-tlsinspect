@@ -1,6 +1,4 @@
 # Ignore the following files
-base/extensions/
-doc/images/networking/
 doc/images/repo-structure/
 doc/images/visualizer/
 doc/images/vwan-config/
