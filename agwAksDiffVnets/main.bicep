@@ -364,7 +364,7 @@ var keyVaultPrivateEndpointIp = '10.0.1.68'
 var vmMngmntName = 'vm-mngmnt'
 var vmMngmntSize = 'Standard_DS2_V2'
 var mngmntNicName  = 'nic-vm-mngmnt'
-var vmMngmntAdminUsername = 'azureAdmin'
+var vmMngmntAdminUsername = 'azureadmin'
 
 
 @description('Admin password for Mngmnt vm')
