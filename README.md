@@ -1,9 +1,3 @@
----
-type: docs
-title: "Azure Firewall TLS Inspection with AKS"
-weight: 1
-description: >
----
 # Azure Firewall to inspect TLS traffic in an AKS environment
 
 ## Table of Contents
