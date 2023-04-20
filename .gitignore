@@ -1,0 +1,6 @@
+# Ignore the following files
+doc/images/repo-structure/
+doc/images/visualizer/
+doc/images/vwan-config/
+doc/images/diagrams/
+certs/
