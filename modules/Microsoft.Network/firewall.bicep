@@ -73,53 +73,54 @@ resource firewallDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-p
     eventHubAuthorizationRuleId: null
     eventHubName: null
     workspaceId: logWorkspace.id
+    logAnalyticsDestinationType: 'Dedicated'
     logs: [
       {
-        category: 'AzureFirewallApplicationRule'
+       category: 'AZFWNetworkRule'
+       enabled: true
+      }
+      {
+       category: 'AZFWApplicationRule'
+       enabled: true
+      }
+      {
+        category: 'AZFWNatRule'
         enabled: true
       }
       {
-        category: 'AzureFirewallNetworkRule'
-        enabled: true
-      }
-      // {
-        // category: 'AzureFirewallNatRule'
-        // enabled: true
-      // }
-      {
-        category: 'AzureFirewallThreatIntelligence'
+        category: 'AZFWThreatIntel'
         enabled: true
       }
       {
-        category: 'AzureFirewallIdpsSignature'
+        category: 'AZFWIdpsSignature'
         enabled: true
       }
       {
-        category: 'AzureFirewallDNSquery'
+        category: 'AZFWDnsQuery'
         enabled: true
       }
       {
-        category: 'AzureFirewallFQDNResolutionFailure'
+        category: 'AZFWFqdnResolveFailure'
         enabled: true
       }
       {
-        category: 'AzureFirewallFatFlowLog'
+        category: 'AZFWFatFlow'
         enabled: true
       }
       {
-        category: 'AzureFirewallFlowTraceLog'
+        category: 'AZFWFlowTrace'
         enabled: true
       }
       {
-        category: 'AzureFirewallNetworkRuleAggregation'
+        category: 'AZFWNetworkRuleAggregation'
         enabled: true
       }
       {
-        category: 'AzureFirewallApplicationRuleAggregation'
+        category: 'AZFWApplicationRuleAggregation'
         enabled: true
       }
       {
-        category: 'AzureFirewallNatRuleAggregation'
+        category: 'AZFWNatRuleAggregation'
         enabled: true
       }
     ]
