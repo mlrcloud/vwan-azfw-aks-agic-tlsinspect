@@ -82,10 +82,10 @@ resource firewallDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-p
         category: 'AzureFirewallNetworkRule'
         enabled: true
       }
-      {
-        category: 'AzureFirewallNatRule'
-        enabled: true
-      }
+      // {
+        // category: 'AzureFirewallNatRule'
+        // enabled: true
+      // }
       {
         category: 'AzureFirewallThreatIntelligence'
         enabled: true
