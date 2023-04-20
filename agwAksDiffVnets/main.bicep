@@ -322,7 +322,7 @@ param spnClientId string
 @secure()
 param spnClientSecret string
 var customScriptName = 'custo-script'
-param templateBaseUrl string = 'https://raw.githubusercontent.com/pabloameijeirascanay/test/main/artifacts/' //TOREVIEW: Change this after change repo visibility
+param templateBaseUrl string = 'https://raw.githubusercontent.com/mlrcloud/vwan-azfw-aks-agic-tlsinspect/main/artifacts/'
 var downloadFile = 'download.sh'
 
 
@@ -364,7 +364,7 @@ var keyVaultPrivateEndpointIp = '10.0.1.68'
 var vmMngmntName = 'vm-mngmnt'
 var vmMngmntSize = 'Standard_DS2_V2'
 var mngmntNicName  = 'nic-vm-mngmnt'
-var vmMngmntAdminUsername = 'azureAdmin'
+var vmMngmntAdminUsername = 'azureadmin'
 
 
 @description('Admin password for Mngmnt vm')
