@@ -3,10 +3,10 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "spnObjectId":{
-            "value": "8147ca7b-06bb-4668-b58e-a14494650021"
+            "value": "XXXXXXXXXXXXXXXXXXXXX"
         },
         "spnClientId": {
-            "value": "738094dc-7bce-4c90-b1c2-1ab73e34cb2f"
+            "value": "XXXXXXXXXXXXXXXXXXXX"
         },
         "location": {
             "value": "westeurope"
