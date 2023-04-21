@@ -28,21 +28,22 @@
 
 ## Deploy an Azure Firewall to inspect TLS traffic in an AKS environment
 
-
 The following scenario will guide you on how to deploy a "Ready to Go" environment so you can start using Azure Firewall to use TLS inpection with an AKS cluster. This escenario uses a [Hub-spoke network topology with Azure Virtual WAN](https://learn.microsoft.com/en-us/azure/architecture/networking/hub-spoke-vwan-architecture) with an Azure Firewall configured in the Virtual WAN hub, we use an AppGw with a WAF to route internet traffic to a Nginx IC installed in the AKS cluster, all the traffic will be route to the Azure Firewall.
 
 ![Architecture diagram](doc/images/01.png)
 
-- AppGW, ida vuelta cert.
+In this scenario, AppGw and AKS cluster are in different vNets that are peered to vWAN Hub. Regarding routing, the routes that are advertised from the vWAN Default Route Table to AKS vNet are applied to the entire vNet, and not on the subnets of the AKS vNet. For this reason, UDRs are required to enable that Azure Firewall in the secure hub to inspect traffic between the AppGw and the AKS cluster. Soon, the scenario where AppGw and AKS cluster are in the same vNet will be included.
 
-Scenario agw + azfw network rules: disable app rule, because fw will not act as web proxy so no TLS inspection will be performed. 
-         AGW Default Probe doesn't work because it uses protocol localhost:ports for health check so the responde code is 404 and only 200-399 code are allowed.
-        
-        Scenario agw +azfw app rules: enable app rule, because fw will act as web proxy so TLS inspection will be performed.
-         AGW Default Probe doesn't work because SNI doesn't work. "If a custom probe isn't configured, then Application Gateway sends a default probe in this format - <protocol>:127.0.0.1:<port>/. 
-        For example, for a default HTTPS probe, it will be sent as https://127.0.0.1:443/. 
-        Note that, the 127.0.0.1 mentioned here is only used as HTTP host header and as per RFC 6066, won't be used as SNI header."
-        url: https://learn.microsoft.com/en-us/azure/application-gateway/ssl-overview#for-probe-traffic
+The packet flow when AppGw is in a spoke vNet is as follows:
+1. A client submits a request to a web server.
+2. Application Gateway examines the packets. If they pass inspection, the Application Gateway subnet forwards the packets to Azure Firewall Premium.
+3. As TLS inspection is enabled in the Azure Firewall, it will verify that the HTTP Host header matches the destination IP. With that purpose, it will need name resolution for the FQDN that is specified in the Host header. Azure Firewall Premium requests DNS resolution from a Private DNS Resolver in the shared services virtual network. Note that website private zone is linked to shared services vNet, the Private DNS Resolver inbound endpoint answers the resolution request to the Nginx Ingress Controller IP address. Azure Firewall Premium runs security checks on the packets. If they pass the tests, Azure Firewall Premium forwards the packets to the Nginx Ingress Controller IP address.
+
+    > Note that we are using an application rule to perform TLS inspection. If we were using a network rule, the packets would be forwarded to the Nginx Ingress Controller IP address without TLS inspection, so Azure Firewall would only see encrypted traffic going to the AKS cluster. As we are using an application rule, Azure Firewall will SNAT traffic by default, so the Nginx Ingress Controller will see the source IP address of the specific firewall instance that processed the packet.
+
+4. The AKS application replies to the SNAT source IP address of the Azure Firewall instance. 
+5. Azure Firewall forwards the traffic to the AppGw instance.
+6. Finally, AppGw instance responds to the client.
 
 
 ### Prerequisites
@@ -410,7 +411,7 @@ To view the certificates chain, lets create an Azure Linux VM in a subnet in the
   openssl s_client -connect 10.0.2.73:443 -servername www.manuelpablo.com -CAfile rootCA.crt -showcerts
   ```
 
-  As you can see the Azure Firewall generates a new server certificate signed by Intermediate CA certificate that you have provided
+  As you can see the Azure Firewall generates a new server certificate signed by a private CA (Certificate Authority).
 
   ![openssl](doc/images/22.png)
 
