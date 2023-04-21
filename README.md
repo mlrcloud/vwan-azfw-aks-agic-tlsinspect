@@ -41,7 +41,7 @@ The packet flow when AppGw is in a spoke vNet is as follows:
 
     > Note that we are using an application rule to perform TLS inspection. If we were using a network rule, the packets would be forwarded to the Nginx Ingress Controller IP address without TLS inspection, so Azure Firewall would only see encrypted traffic going to the AKS cluster. As we are using an application rule, Azure Firewall will SNAT traffic by default, so the Nginx Ingress Controller will see the source IP address of the specific firewall instance that processed the packet.
 
-  Azure Firewall Premium establishes a TLS session with the AKS application and verifies that a well-known CA signs the website TLS packets.
+    Azure Firewall Premium establishes a TLS session with the AKS application and verifies that a well-known CA signs the website TLS packets.
 
 4. The AKS application replies to the SNAT source IP address of the Azure Firewall instance. 
 5. Azure Firewall forwards the traffic to the AppGw instance.
