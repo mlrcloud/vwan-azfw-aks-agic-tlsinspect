@@ -540,27 +540,6 @@ If you want to delete the entire environment, simply delete the deployment resou
 
 ### Alternative Deployments
 
-#### Same Vnet option deployment for AKS and AppGw
-In this scenario, AppGw and AKS cluster are in the same vNet that is peered to vWAN Hub. Regarding routing, the routes that are advertised from the vWAN Default Route Table to the vNet are applied to the entire vNet, and not on the subnets of the vNet. For this reason, UDRs are required to enable that Azure Firewall in the secure hub to inspect traffic between the AppGw and the AKS cluster.
-
-![Architecture diagram](doc/images/29.png)
-
-The packet flow from AppGw to AKS cluster is as follows:
-1. A client submits a request to the website.
-2. The request to the AppGw public IP is distributed to a back-end instance of the AppGw and it examines the packets. If they pass inspection, the AppGw instance stops the connection from the client, and establishes a new connection with one of the back ends. The UDR to 10.0.2.0/24 in the AppGw subnet forwards the packet to the Azure Firewall, while preserving the destination IP to the Nginx Ingress Controller.
-3. As TLS inspection is enabled in the Azure Firewall, it will verify that the HTTP Host header matches the destination IP. With that purpose, it will need name resolution for the FQDN that is specified in the Host header. Azure Firewall Premium requests DNS resolution from a Private DNS Resolver in the shared services virtual network. Note that website private zone is linked to shared services vNet, the Private DNS Resolver inbound endpoint answers the resolution request to the Nginx Ingress Controller IP address. Azure Firewall Premium runs security checks on the packets. If they pass the tests, Azure Firewall Premium forwards the packets to the Nginx Ingress Controller IP address.
-
-    > Note that we are using an application rule to perform TLS inspection. If we were using a network rule, the packets would be forwarded to the Nginx Ingress Controller IP address without TLS inspection, so Azure Firewall would only see encrypted traffic going to the AKS cluster. As we are using an application rule, Azure Firewall will SNAT traffic by default, so the Nginx Ingress Controller will see the source IP address of the specific firewall instance that processed the packet.
-
-    Azure Firewall Premium establishes a TLS session with the AKS application and verifies that a well-known CA (in this scenario R3 is the Root CA for our Let's Encrypt server certificate) signs the website TLS packets.
-
-4. The AKS application replies to the SNAT source IP address of the Azure Firewall instance. 
-
-    > Note that if we were using a network rule, Azure Firewall doesn't SNAT traffic by default and the packets would be answered by AKS to the AppGw instance IP address so an UDR is required. The UDR to 10.0.3.0/24 captures the packet sent back to the AppGw instance and redirects it to Azure Firewall, while preserving the destination IP toward the AppGw.
-
-5. Azure Firewall forwards the traffic to the AppGw instance.
-6. Finally, AppGw instance responds to the client.
-
 #### Application Gateway Ingress Controller 
 
 This is the flow of the network traffic when you have AGIC with AKS ussing Azure Firewall TLS inspection:
@@ -614,3 +593,24 @@ The Azure Firewall SNAT the Azure Firewall instance private IP to the AppGw inst
     All the traffic is received by the same pod, the one which IP is set in the Azure Private DNS zone record A.
 
 In conclution, Azure Firewall TLS Inspection cannot be used with AGIC, even if in the record A that we create in the Azure DNS Private Zone we put all the IPs of the pods of our application (which is not optimal since the IPs of the pods can change), it does not mean that the traffic will be distributed equally among the pods of our application, since Azure Private DNS zone works with [Round-robin DNS](https://en.wikipedia.org/wiki/Round-robin_DNS).
+
+#### Same Vnet option deployment for AKS and AppGw
+In this scenario, AppGw and AKS cluster are in the same vNet that is peered to vWAN Hub. Regarding routing, the routes that are advertised from the vWAN Default Route Table to the vNet are applied to the entire vNet, and not on the subnets of the vNet. For this reason, UDRs are required to enable that Azure Firewall in the secure hub to inspect traffic between the AppGw and the AKS cluster.
+
+![Architecture diagram](doc/images/37.png)
+
+The packet flow from AppGw to AKS cluster is as follows:
+1. A client submits a request to the website.
+2. The request to the AppGw public IP is distributed to a back-end instance of the AppGw and it examines the packets. If they pass inspection, the AppGw instance stops the connection from the client, and establishes a new connection with one of the back ends. The UDR to 10.0.2.0/24 in the AppGw subnet forwards the packet to the Azure Firewall, while preserving the destination IP to the Nginx Ingress Controller.
+3. As TLS inspection is enabled in the Azure Firewall, it will verify that the HTTP Host header matches the destination IP. With that purpose, it will need name resolution for the FQDN that is specified in the Host header. Azure Firewall Premium requests DNS resolution from a Private DNS Resolver in the shared services virtual network. Note that website private zone is linked to shared services vNet, the Private DNS Resolver inbound endpoint answers the resolution request to the Nginx Ingress Controller IP address. Azure Firewall Premium runs security checks on the packets. If they pass the tests, Azure Firewall Premium forwards the packets to the Nginx Ingress Controller IP address.
+
+    > Note that we are using an application rule to perform TLS inspection. If we were using a network rule, the packets would be forwarded to the Nginx Ingress Controller IP address without TLS inspection, so Azure Firewall would only see encrypted traffic going to the AKS cluster. As we are using an application rule, Azure Firewall will SNAT traffic by default, so the Nginx Ingress Controller will see the source IP address of the specific firewall instance that processed the packet.
+
+    Azure Firewall Premium establishes a TLS session with the AKS application and verifies that a well-known CA (in this scenario R3 is the Root CA for our Let's Encrypt server certificate) signs the website TLS packets.
+
+4. The AKS application replies to the SNAT source IP address of the Azure Firewall instance. 
+
+    > Note that if we were using a network rule, Azure Firewall doesn't SNAT traffic by default and the packets would be answered by AKS to the AppGw instance IP address so an UDR is required. The UDR to 10.0.3.0/24 captures the packet sent back to the AppGw instance and redirects it to Azure Firewall, while preserving the destination IP toward the AppGw.
+
+5. Azure Firewall forwards the traffic to the AppGw instance.
+6. Finally, AppGw instance responds to the client.
