@@ -24,7 +24,7 @@
 
 [Known Issues](#known-issues)
 
-[Future Deployments](#future-deployments)
+[Application Gateway Ingress Controller](#application-gateway-ingress-controller)
 
 ## Deploy an Azure Firewall to inspect TLS traffic in an AKS environment
 
@@ -537,7 +537,56 @@ If you want to delete the entire environment, simply delete the deployment resou
 - AppGw uses custom DNS servers assigned to its VNET to resolve most of its backend servers FQDNs, but for some of them it uses the Azure built-in DNS service (168.63.129.16), ignoring custom DNS. To resolve this issue you can just link the agw Vnet to the Azure Private DNS zone or use a Forwarding Rule for the DNS Private Resolver (which is the solution we have used).
 - The record type A to point our application throug the ingress is created after the AppGw resource creation, so you will to to restart AppGw, if not you will experience this [issue](https://learn.microsoft.com/en-us/azure/application-gateway/application-gateway-backend-health-troubleshooting#updates-to-the-dns-entries-of-the-backend-pool) (this is the reason why we restart AppGw in the [install.sh](https://github.com/mlrcloud/vwan-azfw-aks-agic-tlsinspect/blob/main/artifacts/install.sh) script).
 
-### Future Deployments
+## Application Gateway Ingress Controller
 
-- Same Vnet option deployment for AKS and AppGw
-- Application Gateway Ingress Controller Limitations
+This is the flow of the network traffic when you have AGIC with AKS ussing Azure Firewall TLS inspection:
+
+  ![AGIC](doc/images/29.png)
+
+1. When The client sends an HTTPS request to the public IP address of the Azure Application Gateway, the Azure Application Gateway decrypts the request using the SSL/TLS symmetric-key (the PFX certificate configured on the listener is used to establish a secure connection between the client and the Azure Application Gateway). The frontend IP configuration is associated with a public IP address and a listener, which listens for traffic on a particular port.
+
+2. Azure Application Gateway uses a SNAT to map the source IP address of a client to one of its own private IPs (when a client sends a request to the Application Gateway, the source IP address of the client is replaced with the Private IP address of the one of the Application Gateway's network interfaces, the Azure Load balancer utilized by AppGW under the woods uses [Direct Server Return (DSR)](https://learn.microsoft.com/en-us/azure/load-balancer/load-balancer-multivip-overview#rule-type-2-backend-port-reuse-by-using-floating-ip)) and a DNAT to map the destination AppGW Public IP to the web application IP (pod IP).
+The UDR in the Application Gateway subnet forwards the packet to the Azure Firewall, while preserving the destination IP to the web application (pod).
+The Azure Firewall generates a dynamic SSL/TLS certificate for the connection, signed by the intermediate certificate uploaded to the Azure Firewall. This dynamic certificate is presented to the Azure Application Gateway, as this certificate was signed by Intermedite certificate and the Intermediate certificate was signed by the root certificate uploaded to the Application Gateway backend settings, it allows the Azure Application Gateway to verify the dynamic SSL/TLS certificate presented by the Azure Firewall during the SSL/TLS handshake process. So, the Application Gateway will encrypt the request before forwarding it to the Azure Firewall Internal Load Balancer. Then the ILB forwards the traffic to one of the Azure Firewall instances.
+
+3. Azure Firewall Premium receives the traffic, decrypts the traffic, applies IDPS (Intrusion Detection and Prevention) inspection, SNAT the AppGw instance private IP to the Azure Firewall instance private IP (we are using an app rule) and re encrypts the traffic to forward to the web application (pod). During the SSL/TLS handshake process between the Azure Firewall and the web application, the Azure Firewall will act as the client, the web application will present its own SSL/TLS certificate, which the Azure Firewall will verify (the web application certificate is a CA Signed Certificate (certificate that has been issued and signed by a publicly trusted certificate authority (CA)) and Azure Firewall already has the CA intermediate certificates installed) and use the SSL/TLS symmetric-key to encrypt the outgoing traffic.
+**For HTTP/S FQDNs in Application rules, the firewall parses out the FQDN from the host or SNI header, resolves it, and then connects to that IP address. The destination IP address the client was trying to connect to is ignored. This is why the same pod received all the traffic, as we just configure one Pod IP in the Azure Private DNS Zone (*)**.
+
+4. The final application encrypts the response and sends it back to the Azure Firewall instance private IP. The Azure Firewall decrypts the response and inspects the response for any security threats.
+The Azure Firewall SNAT the Azure Firewall instance private IP to the AppGw instance private IP, encrypts the response and forwards it back to the AppGw.
+
+5. AppGw decrypts the response and the AppGw instance uses  Direct Server Return (DSR) (permitting the AppGW instace to respond directly to the client in the behalf of AppGw ALB PIP).
+
+6. Finally, it will forward the response back to the client over an SSL/TLS connection, and the traffic will be encrypted using the SSL/TLS symmetric-key.
+
+    \* The health probes which are pointing to our pods are Unhealthy:
+
+      ![AGIC](doc/images/30.png)
+
+    Azure Firewall gives the following deny:
+
+      ![AGIC](doc/images/31.png)
+
+    > **NOTE: Failed to resolve address www.manuelpablo.com:8443: lookup www.manuelpablo.com on 127.0.0.53:53: no such host.**
+
+    When we create the Azure Private DNS zone with one of the pod IP:
+
+      ![AGIC](doc/images/32.png)
+
+    The health probes now are healthy:
+
+      ![AGIC](doc/images/33.png)
+
+    The traffic matches the Azure Firewall App rule
+
+      ![AGIC](doc/images/34.png)
+
+    If we check the pods logs:
+    
+      ![AGIC](doc/images/35.png)
+    
+      ![AGIC](doc/images/36.png)
+
+    All the traffic is received by the same pod, the one which IP is set in the Azure Private DNS zone record A.
+
+In conclution, Azure Firewall TLS Inspection cannot be used with AGIC, even if in the record A that we create in the Azure DNS Private Zone we put all the IPs of the pods of our application (which is not optimal since the IPs of the pods can change), it does not mean that the traffic will be distributed equally among the pods of our application, since Azure Private DNS zone works with [Round-robin DNS](https://en.wikipedia.org/wiki/Round-robin_DNS).
