@@ -26,6 +26,8 @@
 
 [Application Gateway Ingress Controller](#application-gateway-ingress-controller)
 
+[Same Vnet option deployment for AKS and AppGw](#same-vnet-option-deployment-for-aks-and-appgw)
+
 ## Deploy an Azure Firewall to inspect TLS traffic in an AKS environment
 
 The following scenario will guide you on how to deploy a "Ready to Go" environment so you can start using Azure Firewall to use TLS inpection with an AKS cluster. This escenario uses a [Hub-spoke network topology with Azure Virtual WAN](https://learn.microsoft.com/en-us/azure/architecture/networking/hub-spoke-vwan-architecture) with an Azure Firewall configured in the Virtual WAN hub, we use an AppGw with a WAF to route internet traffic to a Nginx IC installed in the AKS cluster, all the traffic will be route to the Azure Firewall.
@@ -538,9 +540,9 @@ If you want to delete the entire environment, simply delete the deployment resou
 - The record type A to point our application throug the ingress is created after the AppGw resource creation, so you will to to restart AppGw, if not you will experience this [issue](https://learn.microsoft.com/en-us/azure/application-gateway/application-gateway-backend-health-troubleshooting#updates-to-the-dns-entries-of-the-backend-pool) (this is the reason why we restart AppGw in the [install.sh](https://github.com/mlrcloud/vwan-azfw-aks-agic-tlsinspect/blob/main/artifacts/install.sh) script).
 
 
-### Alternative Deployments
+## Alternative Deployments
 
-#### Application Gateway Ingress Controller 
+### Application Gateway Ingress Controller 
 
 This is the flow of the network traffic when you have AGIC with AKS ussing Azure Firewall TLS inspection:
 
@@ -594,7 +596,7 @@ The Azure Load balancer utilized by AppGW under the woods we believe it uses [Di
 
 In conclution, Azure Firewall TLS Inspection cannot be used with AGIC, even if in the record A that we create in the Azure DNS Private Zone we put all the IPs of the pods of our application (which is not optimal since the IPs of the pods can change), it does not mean that the traffic will be distributed equally among the pods of our application, since Azure Private DNS zone works with [Round-robin DNS](https://en.wikipedia.org/wiki/Round-robin_DNS).
 
-#### Same Vnet option deployment for AKS and AppGw
+### Same Vnet option deployment for AKS and AppGw
 
 > **NOTE: To create this scenario you just need to change in the deployment scripts (deploy.CLI.ps1, deploy.CLI.sh and deploy.PowerShell.ps1) agwAksDiffVnets to agwAksSameVnet.**
 
